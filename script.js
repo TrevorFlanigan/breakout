@@ -68,7 +68,7 @@ function onKeyUp(evt){
 function initPaddle(){
 	paddlex=width/2;
 	paddleh=10;
-	paddlew=100;
+	paddlew=200;
 }
 function initBricks(){
 	bricks=new Array(nrows);
@@ -114,7 +114,22 @@ function draw(){
 	if(y+dy>=height-paddleh){
 		if(x>paddlex-paddlew/2&&x<paddlex-paddlew/2+paddlew){
 			dy=-dy;
+			if(x<paddlex-paddlew/4){
+				if(dx>0){
+					//reverse and increase the speed and angle of the ball
+					console.log("Changed to Left")
+					dx=-dx*1.5;	
+				}
+				else{
+					dx=dx*1.5;
+					console.log("Continued going Left");
+				}
+			}
+			else if(x>paddlex+paddlew/4){
+				console.log("Hit Right Corner")
+			}
 		}
+
 		else{
 			clearInterval(interval);
 			console.log("Game is over.");
