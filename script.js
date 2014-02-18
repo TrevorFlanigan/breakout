@@ -19,10 +19,10 @@ var dy=3;
 var paddlex;
 var paddleh;
 var paddlew;
-var paddledx=7;
+var paddledx=10;
 var rightDown=false;
 var leftDown=false;
-var ps=10;
+var ps=5;
 var mousePos;
 var bricks;
 var nrows=5;
@@ -30,6 +30,7 @@ var ncols=5;
 var brickWidth=width/ncols-1;
 var brickHeight=15;
 var padding=1;
+var win=false;
 //console.log("canvas width " + canvas.width + ",  height " + canvas.height);
 /*ctx.fillStyle="black";
 ctx.fillRect(0,0,width,height);
@@ -38,6 +39,27 @@ ctx.arc(width/2,height/2,10,0,2*Math.PI);
 ctx.fill();*/
 
 //Javascript
+function checkWin(){
+	var counter=0;
+	var numBricks=0;
+	console.log("You hit a brick!");
+	for(i=0;i<nrows;i++){
+		for(j=0;j<ncols;j++){
+			numBricks++;
+			if(bricks[i][j]===0){
+				counter++;
+				console.log(counter);
+			}
+			
+		}
+	}
+	if(counter===numBricks){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 function onMouseMove(evt){
 	mousePos=evt.pageX;
 	
@@ -80,9 +102,11 @@ function initBricks(){
 	}
 	console.log(bricks);
 }
+var bgColour="black";
 function draw(){
 //	//console.log("Ping");
-	ctx.fillStyle="black";
+
+	ctx.fillStyle=bgColour;
 	//ctx.clearRect(0,0,width,height);
 	ctx.fillRect(0,0,width,height);
 	ctx.fillStyle="white";
@@ -91,6 +115,7 @@ function draw(){
 	ctx.fill();
 	ctx.fillStyle="green";
 	ctx.fillRect(paddlex-paddlew/2,height-paddleh,paddlew,paddleh);
+
 	//ctx.fillStyle="red";
 	for(i=0;i<nrows;i++){
 		for(j=0;j<ncols;j++){
@@ -101,6 +126,9 @@ function draw(){
 			
 		}
 	} 
+	if(bgColour!=="black"){
+		clearInterval(interval);
+	}
 	//bounce
 	var rowHeight=brickHeight+padding;
 	var colWidth=brickWidth+padding;
@@ -108,6 +136,7 @@ function draw(){
 	var col=Math.floor(x/colWidth);
 	if(y<rowHeight*nrows&&row>=0&&col>=0&&bricks[row][col]==1){
 		bricks[row][col]=0;
+		
 		dy=-dy;
 	}
 //console.log(row+" "+col);
@@ -127,14 +156,35 @@ function draw(){
 			}
 			else if(x>paddlex+paddlew/4){
 				console.log("Hit Right Corner")
+					if(dx>0){
+						dx=dx*1.5;
+					}
+					else{
+						dx=-dx*1.5;
+					}
 			}
 		}
 
 		else{
-			clearInterval(interval);
 			console.log("Game is over.");
+			ctx.font= width/6 + "px Ariel";
+			var textString="You Lose!";
+			var textWidth=ctx.measureText(textString).width;
+			bgColour="#6E463F";
+			ctx.fillStyle="white";
+			ctx.fillText(textString,width/2-textWidth/2,height/2);
+			
 		}
 	}
+		if(checkWin()){	
+			console.log("You Won!");
+			ctx.font= width/6 + "px Ariel";
+			var textString="You Win!";
+			var textWidth=ctx.measureText(textString).width;
+			ctx.fillStyle="white";
+			ctx.fillText(textString,width/2-textWidth/2,height/2);
+			bgColour="purple";
+		}
 	//roof
 	if(y+dy<=0){
 		dy=-dy;
@@ -175,12 +225,11 @@ function draw(){
 //		//console.log("Standing Still!");
 	}
 
-
 }
 
 initPaddle();
 initBricks();
-var interval = setInterval(draw,10);
+var interval = setInterval(draw,5);
 
 
 //Left = 37, Right = 39
