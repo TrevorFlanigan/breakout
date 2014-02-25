@@ -31,6 +31,7 @@ var brickWidth=width/ncols-1;
 var brickHeight=15;
 var padding=1;
 var win=false;
+var brickColour;
 //console.log("canvas width " + canvas.width + ",  height " + canvas.height);
 /*ctx.fillStyle="black";
 ctx.fillRect(0,0,width,height);
@@ -39,10 +40,30 @@ ctx.arc(width/2,height/2,10,0,2*Math.PI);
 ctx.fill();*/
 
 //Javascript
+function randBrick(){
+  var numbers=[1,1,1,1,1,1,1,1,1,2];
+  var idx = Math.floor(Math.random() * numbers.length);
+  return numbers[idx];
+}
+function rainbowPower(){
+	var letters="0123456789abcdef";
+	letters=letters.split("");
+	//set up a new variable called colour
+	//colour starts with #
+	//write a for loop which runs 6 times
+	//inside the loop add a random letter to colour
+	//after the loop, return colour
+	//pass in colour into the paintcells function when score = 5.
+	var colourNumb="#";
+	for(var i=0;i<6;i++){
+		colourNumb+=letters[Math.round(Math.random()*15)];
+	}
+	return colourNumb;
+}
 function checkWin(){
 	var counter=0;
 	var numBricks=0;
-	console.log("You hit a brick!");
+	//console.log("You hit a brick!");
 	for(i=0;i<nrows;i++){
 		for(j=0;j<ncols;j++){
 			numBricks++;
@@ -97,11 +118,20 @@ function initBricks(){
 	for(i=0;i<nrows;i++){
 		bricks[i]=new Array(ncols);
 		for(j=0;j<ncols;j++){
-			bricks[i][j]=1;
+			bricks[i][j]=randBrick();
+		}
+	}
+	console.log(bricks);
+	brickColour=new Array(nrows);
+	for(i=0;i<nrows;i++){
+		brickColour[i]=new Array(ncols);
+		for(j=0;j<ncols;j++){
+			brickColour[i][j]=rainbowPower();
 		}
 	}
 	console.log(bricks);
 }
+
 var bgColour="black";
 function draw(){
 //	//console.log("Ping");
@@ -116,14 +146,18 @@ function draw(){
 	ctx.fillStyle="green";
 	ctx.fillRect(paddlex-paddlew/2,height-paddleh,paddlew,paddleh);
 
-	//ctx.fillStyle="red";
+	
 	for(i=0;i<nrows;i++){
 		for(j=0;j<ncols;j++){
 			if(bricks[i][j]===1){
+				ctx.fillStyle=brickColour[i][j];
 				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
 
 			}
-			
+			else if(bricks[i][j]===2){
+				ctx.fillStyle=rainbowPower();
+				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
+			}
 		}
 	} 
 	if(bgColour!=="black"){
@@ -134,10 +168,13 @@ function draw(){
 	var colWidth=brickWidth+padding;
 	var row=Math.floor(y/rowHeight);
 	var col=Math.floor(x/colWidth);
-	if(y<rowHeight*nrows&&row>=0&&col>=0&&bricks[row][col]==1){
+	if(y<rowHeight*nrows && row>=0 && col>=0 && bricks[row][col]>=1){
+		if(bricks[row][col]===2){
+			paddlew=400;
+		}
 		bricks[row][col]=0;
-		
 		dy=-dy;
+		
 	}
 //console.log(row+" "+col);
 	if(y+dy>=height-paddleh){
