@@ -180,6 +180,11 @@ function draw(){
 			else if(bricks[i][j]===4){
 				ctx.fillStyle="white";
 				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
+				var testImage=new Image();
+				testImage.src="images/slow.png";
+				testImage.onload=function(){
+					ctx.drawImage(testImage,j*(brickWidth+padding)+padding,i * (brickHeight + padding)+ padding);
+				}
 			}
 		}
 	} 
@@ -210,6 +215,7 @@ function draw(){
 		dy=-dy;
 		
 	}
+
 //console.log(row+" "+col);
 	if(y+dy>=height-paddleh){
 		if(x>paddlex-paddlew/2&&x<paddlex-paddlew/2+paddlew){
@@ -286,19 +292,18 @@ function draw(){
 
 	//console.log(mousePos);
 	if(leftDown===true&&rightDown===false&&paddlex-paddlew/2>=0){
-		console.log("Moving Left!");
+	//	console.log("Moving Left!");
 		paddlex-=paddledx;
 	}
 	else if(rightDown===true&&leftDown===false&&paddlex+paddlew/2<=width){
-		console.log("Moving Right!");
+	//	console.log("Moving Right!");
 		paddlex+=paddledx;
 	}
 	else{
-		console.log("Standing Still!");
+	//	console.log("Standing Still!");
 	}
 
 }
-
 initPaddle();
 initBricks();
 var interval = setInterval(draw,5);
