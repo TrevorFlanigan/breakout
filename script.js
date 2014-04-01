@@ -32,6 +32,8 @@ var brickHeight=15;
 var padding=1;
 var win=false;
 var brickColour;
+var interval;
+var images = {};
 //console.log("canvas width " + canvas.width + ",  height " + canvas.height);
 /*ctx.fillStyle="black";
 ctx.fillRect(0,0,width,height);
@@ -40,6 +42,36 @@ ctx.arc(width/2,height/2,10,0,2*Math.PI);
 ctx.fill();*/
 
 //Javascript
+function loadImages(sources, callback) {
+    var loadedImages = 0;
+    var numImages = 0;
+    // get num of sources
+    for(var src in sources) {
+      numImages++;
+    }
+    for(var src in sources) {
+      images[src] = new Image();
+      images[src].onload = function() {
+        if(++loadedImages >= numImages) {
+          callback();
+        }
+      };
+      images[src].src = sources[src];
+    }
+  }
+
+var sources = {
+    big: 'images/big.png',
+    slow: 'images/slow.png',
+    small: 'images/small.png'
+};
+
+loadImages(sources, function() {
+	console.log("The tiny 13x13 icon for the brick works!");
+	initPaddle();
+	initBricks();
+	interval = setInterval(draw,5);
+});
 function resetPowerups(powerUp){
 	switch (powerUp) {
 		case "bigPaddle":
@@ -56,7 +88,7 @@ function resetPowerups(powerUp){
 	}
 }
 function randBrick(){
-  var numbers=[1,1,1,1,1,1,1,4,2,3];
+  var numbers=[1,1,1,1,1,1,1,4,2,3,1,1,1,1,1,1,1,1,1,1,0];
   var idx = Math.floor(Math.random() * numbers.length);
   return numbers[idx];
 }
@@ -172,23 +204,23 @@ function draw(){
 			else if(bricks[i][j]===2){
 				ctx.fillStyle=rainbowPower();
 				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
+				ctx.drawImage(images.big, (j * (brickWidth + padding)) + padding + brickWidth/2, i * (brickHeight + padding) + padding);
 			}
 			else if(bricks[i][j]===3){
 				ctx.fillStyle="red";
 				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
+				ctx.drawImage(images.small, (j * (brickWidth + padding)) + padding + brickWidth/2, i * (brickHeight + padding) + padding);
 			}
 			else if(bricks[i][j]===4){
 				ctx.fillStyle="white";
 				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
-				var testImage=new Image();
-				testImage.src="images/slow.png";
-				testImage.onload=function(){
-					ctx.drawImage(testImage,j*(brickWidth+padding)+padding,i * (brickHeight + padding)+ padding);
-				}
+				ctx.drawImage(images.slow, (j * (brickWidth + padding)) + padding + brickWidth/2, i * (brickHeight + padding) + padding);
+
 			}
 		}
 	} 
-	if(bgColour!=="black"){
+
+				if(bgColour!=="black"){
 		clearInterval(interval);
 	}
 	//bounce
@@ -304,9 +336,7 @@ function draw(){
 	}
 
 }
-initPaddle();
-initBricks();
-var interval = setInterval(draw,5);
-
-
+// initPaddle();
+// initBricks();
+// var interval = setInterval(draw,5);
 //Left = 37, Right = 39
