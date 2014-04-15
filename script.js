@@ -34,7 +34,12 @@ var win=false;
 var brickColour;
 var interval;
 var images = {};
-//console.log("canvas width " + canvas.width + ",  height " + canvas.height);
+var useLaser=false;
+var throwBall=false;
+var ammo=0;
+var laserWidth=2;
+var column;
+//console.log("canvas width "+canvas.width+",  height "+canvas.height);
 /*ctx.fillStyle="black";
 ctx.fillRect(0,0,width,height);
 ctx.fillStyle="white";
@@ -42,6 +47,52 @@ ctx.arc(width/2,height/2,10,0,2*Math.PI);
 ctx.fill();*/
 
 //Javascript
+function drawLaser(){
+	ctx.fillStyle="red";
+	ctx.fillRect(paddlex-laserWidth/2,height-paddleh,laserWidth,-100);
+	//find the space between the two sides of one column
+	if(paddlex<brickWidth){
+		column=0;
+	}
+	else if(paddlex<2*brickWidth+padding*2&&paddlex>brickWidth+padding){
+		column=1;
+	}
+	else if(paddlex<3*brickWidth+padding*3&&paddlex>2*brickWidth+padding*2){
+		column=2;
+	}
+	else if(paddlex<4*brickWidth+padding*4&&paddlex>3*brickWidth+padding*3){
+		column=3;
+	}
+	else if(paddlex<5*brickWidth+padding*5&&paddlex>4*brickWidth+padding*4){
+		column=4;
+	}
+	
+	console.log(column);
+}
+function interact(){
+	if(useLaser){
+		if(ammo>0){
+			console.log("You fired your laser.");
+			ammo--;
+
+		}
+		else{
+			useLaser=false;
+		}
+	}
+	else if(throwBall){
+		console.log("You threw the ball!");
+	}
+	else{
+		console.log("No ammo and no throwBall");
+	}
+}
+function brickIcon(icon,i,j){
+	ctx.drawImage(icon, j*(brickWidth+padding*2)+brickWidth/2, i*(brickHeight+padding*2));
+}
+function fillBrick(i,j){
+	ctx.fillRect(j*(brickWidth+padding*2), i*(brickHeight+padding*2),brickWidth, brickHeight);
+}
 function loadImages(sources, callback) {
     var loadedImages = 0;
     var numImages = 0;
@@ -63,11 +114,12 @@ function loadImages(sources, callback) {
 var sources = {
     big: 'images/big.png',
     slow: 'images/slow.png',
-    small: 'images/small.png'
+    small: 'images/small.png',
+    laser: 'images/laser.png'
 };
 
 loadImages(sources, function() {
-	console.log("The tiny 13x13 icon for the brick works!");
+	// console.log("The tiny 13x13 icon for the brick works!");
 	initPaddle();
 	initBricks();
 	interval = setInterval(draw,5);
@@ -75,20 +127,25 @@ loadImages(sources, function() {
 function resetPowerups(powerUp){
 	switch (powerUp) {
 		case "bigPaddle":
-			console.log("Big Paddle");
+			// console.log("Big Paddle");
 			setTimeout(function(){paddlew=200},18000);
 			break;
 		case "smallPaddle":
-			console.log("Small Paddle");
+			 console.log("Small Paddle");
 			setTimeout(function(){paddlew=200},18000);
 			break;
 		case "slowBall":
-			console.log("Slow Ball");
+			// console.log("Slow Ball");
 			setTimeout(function(){dx=dx*2;dy=dy*2},18000);
+			break;
+		case "laser":
+			console.log("laser is on");
+
+			break;
 	}
 }
 function randBrick(){
-  var numbers=[1,1,1,1,1,1,1,4,2,3,1,1,1,1,1,1,1,1,1,1,0];
+  var numbers=[1,1,1,1,1,1,1,4,2,3,1,1,1,1,1,1,1,1,1,1,0,5];
   var idx = Math.floor(Math.random() * numbers.length);
   return numbers[idx];
 }
@@ -142,7 +199,7 @@ function onKeyDown(evt){
 	if(39===arrowKey){
 		rightDown=true;
 	}
-		console.log(leftDown+" <---LEFT RIGHT---> "+rightDown);
+		// console.log(leftDown+" <---LEFT RIGHT---> "+rightDown);
 }
 function onKeyUp(evt){
 	
@@ -153,7 +210,7 @@ function onKeyUp(evt){
 	if(39===arrowKey){
 		rightDown=false;
 	}
-	console.log(leftDown+" <---LEFT RIGHT---> "+rightDown);
+	// console.log(leftDown+" <---LEFT RIGHT---> "+rightDown);
 }
 function initPaddle(){
 	paddlex=width/2;
@@ -192,30 +249,37 @@ function draw(){
 	ctx.fill();
 	ctx.fillStyle="green";
 	ctx.fillRect(paddlex-paddlew/2,height-paddleh,paddlew,paddleh);
+	drawLaser();
 
 	
 	for(i=0;i<nrows;i++){
 		for(j=0;j<ncols;j++){
 			if(bricks[i][j]===1){
 				ctx.fillStyle=brickColour[i][j];
-				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
+				fillBrick(i,j);
 
 			}
 			else if(bricks[i][j]===2){
 				ctx.fillStyle=rainbowPower();
-				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
-				ctx.drawImage(images.big, (j * (brickWidth + padding)) + padding + brickWidth/2, i * (brickHeight + padding) + padding);
+				fillBrick(i,j);
+				brickIcon(images.big,i,j);
 			}
 			else if(bricks[i][j]===3){
 				ctx.fillStyle="red";
-				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
-				ctx.drawImage(images.small, (j * (brickWidth + padding)) + padding + brickWidth/2, i * (brickHeight + padding) + padding);
+				fillBrick(i,j);
+				brickIcon(images.small,i,j);
 			}
 			else if(bricks[i][j]===4){
 				ctx.fillStyle="white";
-				ctx.fillRect((j * (brickWidth + padding)) + padding, (i * (brickHeight + padding)) + padding,brickWidth, brickHeight);
-				ctx.drawImage(images.slow, (j * (brickWidth + padding)) + padding + brickWidth/2, i * (brickHeight + padding) + padding);
+				fillBrick(i,j);
+				brickIcon(images.slow,i,j);
 
+
+			}
+			else if(bricks[i][j]===5){
+				ctx.fillStyle="purple";
+				fillBrick(i,j);
+				brickIcon(images.laser,i,j);
 			}
 		}
 	} 
@@ -242,6 +306,11 @@ function draw(){
 			resetPowerups("slowBall");
 			dx=dx/2;
 			dy=dy/2;
+		}
+		else if(bricks[row][col]===5){
+			resetPowerups("laser");
+			useLaser=true;
+			ammo+=5;
 		}
 		bricks[row][col]=0;
 		dy=-dy;
@@ -276,7 +345,7 @@ function draw(){
 
 		else{
 			// console.log("Game is over.");
-			ctx.font= width/6 + "px Ariel";
+			ctx.font= width/6+"px Ariel";
 			var textString="You Lose!";
 			var textWidth=ctx.measureText(textString).width;
 			bgColour="#6E463F";
@@ -287,7 +356,7 @@ function draw(){
 	}
 		if(checkWin()){	
 			// console.log("You Won!");
-			ctx.font= width/6 + "px Ariel";
+			ctx.font= width/6+"px Ariel";
 			var textString="You Win!";
 			var textWidth=ctx.measureText(textString).width;
 			ctx.fillStyle="white";
