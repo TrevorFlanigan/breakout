@@ -47,6 +47,31 @@ ctx.arc(width/2,height/2,10,0,2*Math.PI);
 ctx.fill();*/
 
 //Javascript
+
+function givePowerup(row,col){
+	console.log(row+" "+col);
+	if(bricks[row][col]===2){
+	paddlew=400;
+	resetPowerups("bigPaddle");
+	// console.log(paddlew);
+	}
+	else if(bricks[row][col]===3){
+	paddlew=150;
+	resetPowerups("smallPaddle");
+	}
+	else if(bricks[row][col]===4){
+	resetPowerups("slowBall");
+	dx=dx/2;
+	dy=dy/2;
+	}
+	else if(bricks[row][col]===5){
+	resetPowerups("laser");
+	useLaser=true;
+	ammo+=5;
+}
+bricks[row][col]=0;
+dy=-dy;
+}
 function drawLaser(){
 	ctx.fillStyle="red";
 	ctx.fillRect(paddlex-laserWidth/2,height-paddleh,laserWidth,-100);
@@ -66,15 +91,23 @@ function drawLaser(){
 	else if(paddlex<5*brickWidth+padding*5&&paddlex>4*brickWidth+padding*4){
 		column=4;
 	}
-	
-	console.log(column);
+	// console.log(bricks[1][column]);
+//	console.log(column);
 }
 function interact(){
 	if(useLaser){
 		if(ammo>0){
 			console.log("You fired your laser.");
 			ammo--;
-
+			// console.log(bricks[1][column]);
+			for (var i=nrows-1; i>=0; i--) {
+				if(bricks[i][column]>0){
+					bricks[i][column]=0;
+					givePowerup(i,column);
+					i=-1;
+					
+				}
+			};
 		}
 		else{
 			useLaser=false;
@@ -292,30 +325,32 @@ function draw(){
 	var colWidth=brickWidth+padding;
 	var row=Math.floor(y/rowHeight);
 	var col=Math.floor(x/colWidth);
-	if(y<rowHeight*nrows && row>=0 && col>=0 && bricks[row][col]>=1){
-		if(bricks[row][col]===2){
-			paddlew=400;
-			resetPowerups("bigPaddle");
-			// console.log(paddlew);
-		}
-		else if(bricks[row][col]===3){
-			paddlew=150;
-			resetPowerups("smallPaddle");
-		}
-		else if(bricks[row][col]===4){
-			resetPowerups("slowBall");
-			dx=dx/2;
-			dy=dy/2;
-		}
-		else if(bricks[row][col]===5){
-			resetPowerups("laser");
-			useLaser=true;
-			ammo+=5;
-		}
-		bricks[row][col]=0;
-		dy=-dy;
-		
+	if(y<rowHeight*nrows && /*row>=0 && col>=0 &&*/ bricks[row][col]>=1){
+		givePowerup(row,col);
 	}
+	// 	if(bricks[row][col]===2){
+	// 		paddlew=400;
+	// 		resetPowerups("bigPaddle");
+	// 		// console.log(paddlew);
+	// 	}
+	// 	else if(bricks[row][col]===3){
+	// 		paddlew=150;
+	// 		resetPowerups("smallPaddle");
+	// 	}
+	// 	else if(bricks[row][col]===4){
+	// 		resetPowerups("slowBall");
+	// 		dx=dx/2;
+	// 		dy=dy/2;
+	// 	}
+	// 	else if(bricks[row][col]===5){
+	// 		resetPowerups("laser");
+	// 		useLaser=true;
+	// 		ammo+=5;
+	// 	}
+	// 	bricks[row][col]=0;
+	// 	dy=-dy;
+		
+	// }
 
 //console.log(row+" "+col);
 	if(y+dy>=height-paddleh){
