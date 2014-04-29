@@ -39,6 +39,10 @@ var throwBall=false;
 var ammo=0;
 var laserWidth=2;
 var column;
+var row;
+var timer=30;
+var bigOn;
+var laserTimer=0;
 //console.log("canvas width "+canvas.width+",  height "+canvas.height);
 /*ctx.fillStyle="black";
 ctx.fillRect(0,0,width,height);
@@ -48,33 +52,58 @@ ctx.fill();*/
 
 //Javascript
 
+function countdown(){
+	timer--;
+	console.log(timer);
+}
+//countdown();
+function startTimer(){
+	if(bigOn){
+		var blockade=setInterval(countdown(),1000);
+		 if(timer===0){
+			 clearInterval(blockade);
+		 }
+	}
+}
 function givePowerup(row,col){
 	console.log(row+" "+col);
 	if(bricks[row][col]===2){
-	paddlew=400;
-	resetPowerups("bigPaddle");
-	// console.log(paddlew);
+		paddlew=400;
+		resetPowerups("bigPaddle");
+		// console.log(paddlew);
 	}
 	else if(bricks[row][col]===3){
-	paddlew=150;
-	resetPowerups("smallPaddle");
+		paddlew=150;
+		resetPowerups("smallPaddle");
 	}
 	else if(bricks[row][col]===4){
-	resetPowerups("slowBall");
-	dx=dx/2;
-	dy=dy/2;
+		resetPowerups("slowBall");
+		dx=dx/2;
+		dy=dy/2;
 	}
 	else if(bricks[row][col]===5){
-	resetPowerups("laser");
-	useLaser=true;
-	ammo+=5;
-}
-bricks[row][col]=0;
-dy=-dy;
+		resetPowerups("laser");
+		useLaser=true;
+		ammo+=5;
+		console.log(bricks[row][col]);
+	}
 }
 function drawLaser(){
-	ctx.fillStyle="red";
-	ctx.fillRect(paddlex-laserWidth/2,height-paddleh,laserWidth,-100);
+	for (var i=nrows-1; i>=0; i--) {
+		if(bricks[i][column]>0){
+		row=i;
+		i=-1;
+		}
+		
+	}
+	if(laserTimer>0){
+		ctx.fillStyle="red";
+		ctx.fillRect(paddlex-laserWidth/2,height-paddleh,laserWidth,-height);
+	}
+
+//	ctx.fillRect(paddlex-laserWidth/2,height-paddleh,laserWidth,-100);
+	//if(row===0){
+//	}
 	//find the space between the two sides of one column
 	if(paddlex<brickWidth){
 		column=0;
@@ -93,21 +122,25 @@ function drawLaser(){
 	}
 	// console.log(bricks[1][column]);
 //	console.log(column);
+
 }
 function interact(){
 	if(useLaser){
 		if(ammo>0){
 			console.log("You fired your laser.");
+			laserTimer=500;
+			setInterval(function(){laserTimer-=5},5);
 			ammo--;
 			// console.log(bricks[1][column]);
 			for (var i=nrows-1; i>=0; i--) {
 				if(bricks[i][column]>0){
-					bricks[i][column]=0;
+					console.log(bricks[i][column]);
 					givePowerup(i,column);
+					bricks[i][column]=0;
 					i=-1;
 					
 				}
-			};
+			}
 		}
 		else{
 			useLaser=false;
@@ -161,7 +194,9 @@ function resetPowerups(powerUp){
 	switch (powerUp) {
 		case "bigPaddle":
 			// console.log("Big Paddle");
+			bigOn=true;
 			setTimeout(function(){paddlew=200},18000);
+			startTimer();
 			break;
 		case "smallPaddle":
 			 console.log("Small Paddle");
@@ -272,7 +307,6 @@ function initBricks(){
 var bgColour="black";
 function draw(){
 	//console.log("Ping");
-
 	ctx.fillStyle=bgColour;
 	//ctx.clearRect(0,0,width,height);
 	ctx.fillRect(0,0,width,height);
@@ -283,7 +317,6 @@ function draw(){
 	ctx.fillStyle="green";
 	ctx.fillRect(paddlex-paddlew/2,height-paddleh,paddlew,paddleh);
 	drawLaser();
-
 	
 	for(i=0;i<nrows;i++){
 		for(j=0;j<ncols;j++){
@@ -327,6 +360,8 @@ function draw(){
 	var col=Math.floor(x/colWidth);
 	if(y<rowHeight*nrows && /*row>=0 && col>=0 &&*/ bricks[row][col]>=1){
 		givePowerup(row,col);
+		bricks[row][col]=0;
+		dy=-dy;
 	}
 	// 	if(bricks[row][col]===2){
 	// 		paddlew=400;
