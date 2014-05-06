@@ -23,7 +23,7 @@ var paddledx=10;
 var rightDown=false;
 var leftDown=false;
 var ps=5;
-var mousePos
+var mousePos;
 var bricks;
 var nrows=5;
 var ncols=5;
@@ -35,7 +35,7 @@ var brickColour;
 var interval;
 var images = {};
 var useLaser=false;
-var throwBall=false;
+var throwBall=0;
 var ammo=0;
 var laserWidth=2;
 var column;
@@ -43,6 +43,9 @@ var row;
 var timer=30;
 var bigOn;
 var laserTimer=0;
+var caughtBall=false;
+var ndy;
+var ndx;
 //console.log("canvas width "+canvas.width+",  height "+canvas.height);
 /*ctx.fillStyle="black";
 ctx.fillRect(0,0,width,height);
@@ -66,7 +69,7 @@ function startTimer(){
 	}
 }
 function givePowerup(row,col){
-	console.log(row+" "+col);
+	//console.log(row+" "+col);
 	if(bricks[row][col]===2){
 		paddlew=400;
 		resetPowerups("bigPaddle");
@@ -85,7 +88,11 @@ function givePowerup(row,col){
 		resetPowerups("laser");
 		useLaser=true;
 		ammo+=5;
-		console.log(bricks[row][col]);
+	//	console.log(bricks[row][col]);
+	}
+	else if(bricks[row][col]===6){
+		throwBall+=5;
+		console.log("Thowball activated ammo: "+throwBall);
 	}
 }
 function drawLaser(){
@@ -125,28 +132,32 @@ function drawLaser(){
 
 }
 function interact(){
-	if(useLaser){
-		if(ammo>0){
-			console.log("You fired your laser.");
-			laserTimer=500;
-			setInterval(function(){laserTimer-=5},5);
-			ammo--;
-			// console.log(bricks[1][column]);
-			for (var i=nrows-1; i>=0; i--) {
-				if(bricks[i][column]>0){
-					console.log(bricks[i][column]);
-					givePowerup(i,column);
-					bricks[i][column]=0;
-					i=-1;
-					
+	if(!caughtBall){
+		if(useLaser){
+			if(ammo>0){
+				console.log("You fired your laser.");
+				laserTimer=50;
+				setInterval(function(){laserTimer-=5},5);
+				ammo--;
+				// console.log(bricks[1][column]);
+				for (var i=nrows-1; i>=0; i--) {
+					if(bricks[i][column]>0){
+					//	console.log(bricks[i][column]);
+						givePowerup(i,column);
+						bricks[i][column]=0;
+						i=-1;
+						
+					}
 				}
 			}
-		}
-		else{
-			useLaser=false;
+			else{
+				useLaser=false;
+			}
 		}
 	}
-	else if(throwBall){
+	else if(throwBall>0){
+		throwBall--;
+	//	caughtBall=true;
 		console.log("You threw the ball!");
 	}
 	else{
@@ -181,7 +192,8 @@ var sources = {
     big: 'images/big.png',
     slow: 'images/slow.png',
     small: 'images/small.png',
-    laser: 'images/laser.png'
+    laser: 'images/laser.png',
+    throwBall:'images/throwBall.png'
 };
 
 loadImages(sources, function() {
@@ -213,7 +225,7 @@ function resetPowerups(powerUp){
 	}
 }
 function randBrick(){
-  var numbers=[1,1,1,1,1,1,1,4,2,3,1,1,1,1,1,1,1,1,1,1,0,5];
+  var numbers=[1,1,1,1,1,1,1,4,2,3,1,1,1,1,1,1,1,1,1,1,0,5,6];
   var idx = Math.floor(Math.random() * numbers.length);
   return numbers[idx];
 }
@@ -347,6 +359,11 @@ function draw(){
 				fillBrick(i,j);
 				brickIcon(images.laser,i,j);
 			}
+			else if(bricks[i][j]===6){
+				ctx.fillStyle="yellow";
+				fillBrick(i,j);
+				brickIcon(images.throwBall,i,j);
+			}
 		}
 	} 
 
@@ -389,16 +406,20 @@ function draw(){
 
 //console.log(row+" "+col);
 	if(y+dy>=height-paddleh){
+		//add half of paddlew instead of 1 forward 2 back
 		if(x>paddlex-paddlew/2&&x<paddlex-paddlew/2+paddlew){
+			// ndy=-dy;
 			dy=-dy;
 			if(x<paddlex-paddlew/4){
 				if(dx>0){
 					//reverse and increase the speed and angle of the ball
 					// console.log("Changed to Left")
 					dx=-dx*1.1;	
+					//ndx=dx;
 				}
 				else{
 					dx=dx*1.1;
+					//ndx=dx;
 					// console.log("Continued going Left");
 				}
 			}
@@ -410,6 +431,21 @@ function draw(){
 					else{
 						dx=-dx*1.1;
 					}
+			}
+			if(throwBall){
+				caughtBall=true;
+				ndx=dx;
+				ndy=dy;
+				dx=0;
+				dy=0;
+				console.log("Ball is frozen");
+			}
+			else{
+				// dx=ndx;
+				// dy=ndy;
+				// ndx=null;
+				// ndy=null;
+				console.log("Ball bounced normally.");
 			}
 		}
 
@@ -424,6 +460,7 @@ function draw(){
 			
 		}
 	}
+
 		if(checkWin()){	
 			// console.log("You Won!");
 			ctx.font= width/6+"px Ariel";
