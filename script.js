@@ -42,10 +42,17 @@ var column;
 var row;
 var timer=30;
 var bigOn;
+var bigOff;
 var laserTimer=0;
 var caughtBall=false;
 var ndy;
 var ndx;
+var moveLeft=false;
+var moveRight=true;
+var nx;
+var ny;
+var distanceBetween;
+// var mouseX=event.screenX;
 //console.log("canvas width "+canvas.width+",  height "+canvas.height);
 /*ctx.fillStyle="black";
 ctx.fillRect(0,0,width,height);
@@ -155,8 +162,11 @@ function interact(){
 			}
 		}
 	}
-	else if(throwBall>0){
+	else if(throwBall>0&&caughtBall){
 		throwBall--;
+		dx=ndx;
+		dy=ndy;
+		caughtBall=false;
 	//	caughtBall=true;
 		console.log("You threw the ball!");
 	}
@@ -207,7 +217,7 @@ function resetPowerups(powerUp){
 		case "bigPaddle":
 			// console.log("Big Paddle");
 			bigOn=true;
-			setTimeout(function(){paddlew=200},18000);
+			setTimeout(function(){paddlew=200;bigOff=true},18000);
 			startTimer();
 			break;
 		case "smallPaddle":
@@ -318,6 +328,7 @@ function initBricks(){
 
 var bgColour="black";
 function draw(){
+	// console.log(mouseX);
 	//console.log("Ping");
 	ctx.fillStyle=bgColour;
 	//ctx.clearRect(0,0,width,height);
@@ -425,12 +436,12 @@ function draw(){
 			}
 			else if(x>paddlex+paddlew/4){
 				// console.log("Hit Right Corner")
-					if(dx>0){
-						dx=dx*1.1;
-					}
-					else{
-						dx=-dx*1.1;
-					}
+				if(dx>0){
+					dx=dx*1.1;
+				}
+				else{
+					dx=-dx*1.1;
+				}
 			}
 			if(throwBall){
 				caughtBall=true;
@@ -438,7 +449,11 @@ function draw(){
 				ndy=dy;
 				dx=0;
 				dy=0;
-				console.log("Ball is frozen");
+				console.log("Ball is frozen")
+				nx=x;
+				ny=y;
+				distanceBetween=paddlex-nx;
+				console.log(distanceBetween);
 			}
 			else{
 				// dx=ndx;
@@ -460,16 +475,29 @@ function draw(){
 			
 		}
 	}
+	if(caughtBall&&mousePos<nx){
+		x=paddlex-distanceBetween;
+		console.log("Ball Moving Left");
+	}
+	else if(caughtBall&&mousePos>nx){
+		x=paddlex-distanceBetween;
+		console.log("Ball moving right");
+	}
+	if(caughtBall&&bigOff){
+		console.log(bigOff);
+		distanceBetween=distanceBetween/2;
+		bigOff=false;
+	}
 
-		if(checkWin()){	
-			// console.log("You Won!");
-			ctx.font= width/6+"px Ariel";
-			var textString="You Win!";
-			var textWidth=ctx.measureText(textString).width;
-			ctx.fillStyle="white";
-			ctx.fillText(textString,width/2-textWidth/2,height/2);
-			bgColour="purple";
-		}
+	if(checkWin()){	
+		// console.log("You Won!");
+		ctx.font= width/6+"px Ariel";
+		var textString="You Win!";
+		var textWidth=ctx.measureText(textString).width;
+		ctx.fillStyle="white";
+		ctx.fillText(textString,width/2-textWidth/2,height/2);
+		bgColour="purple";
+	}
 	//roof
 	if(y+dy<=0){
 		dy=-dy;
@@ -502,10 +530,12 @@ function draw(){
 	if(leftDown===true&&rightDown===false&&paddlex-paddlew/2>=0){
 	//	console.log("Moving Left!");
 		paddlex-=paddledx;
+		moveLeft=true;
 	}
 	else if(rightDown===true&&leftDown===false&&paddlex+paddlew/2<=width){
 	//	console.log("Moving Right!");
 		paddlex+=paddledx;
+		moveRight=true;
 	}
 	else{
 	//	console.log("Standing Still!");
