@@ -52,6 +52,10 @@ var moveRight=true;
 var nx;
 var ny;
 var distanceBetween;
+var balls = [
+	[width/2,height/2,dx,dy],
+	[50,100,dx,dy]
+];
 // var mouseX=event.screenX;
 //console.log("canvas width "+canvas.width+",  height "+canvas.height);
 /*ctx.fillStyle="black";
@@ -221,7 +225,7 @@ function resetPowerups(powerUp){
 			startTimer();
 			break;
 		case "smallPaddle":
-			 console.log("Small Paddle");
+			// console.log("Small Paddle");
 			setTimeout(function(){paddlew=200},18000);
 			break;
 		case "slowBall":
@@ -334,9 +338,11 @@ function draw(){
 	//ctx.clearRect(0,0,width,height);
 	ctx.fillRect(0,0,width,height);
 	ctx.fillStyle="white";
-	ctx.beginPath();
-	ctx.arc(x,y,10,0,2*Math.PI);
-	ctx.fill();
+	for (var i = 0; i < balls.length; i++) {
+		ctx.beginPath();
+		ctx.arc(balls[i][0],balls[i][1],10,0,2*Math.PI);
+		ctx.fill();
+	};
 	ctx.fillStyle="green";
 	ctx.fillRect(paddlex-paddlew/2,height-paddleh,paddlew,paddleh);
 	drawLaser();
@@ -384,13 +390,16 @@ function draw(){
 	//bounce
 	var rowHeight=brickHeight+padding;
 	var colWidth=brickWidth+padding;
-	var row=Math.floor(y/rowHeight);
-	var col=Math.floor(x/colWidth);
-	if(y<rowHeight*nrows && /*row>=0 && col>=0 &&*/ bricks[row][col]>=1){
-		givePowerup(row,col);
-		bricks[row][col]=0;
-		dy=-dy;
+	for (var i = 0; i < balls.length; i++) {
+		var row=Math.floor(balls[i][1]/rowHeight);
+		var col=Math.floor(balls[i][0]/colWidth);
+		if(balls[i][1]<rowHeight*nrows && /*row>=0 && col>=0 &&*/ bricks[row][col]>=1){
+			givePowerup(row,col);
+			bricks[row][col]=0;
+			balls[i][3]=-balls[i][3];
+		}
 	}
+
 	// 	if(bricks[row][col]===2){
 	// 		paddlew=400;
 	// 		resetPowerups("bigPaddle");
@@ -416,71 +425,81 @@ function draw(){
 	// }
 
 //console.log(row+" "+col);
-	if(y+dy>=height-paddleh){
-		//add half of paddlew instead of 1 forward 2 back
-		if(x>paddlex-paddlew/2&&x<paddlex-paddlew/2+paddlew){
-			// ndy=-dy;
-			dy=-dy;
-			if(x<paddlex-paddlew/4){
-				if(dx>0){
-					//reverse and increase the speed and angle of the ball
-					// console.log("Changed to Left")
-					dx=-dx*1.1;	
-					//ndx=dx;
+	for (var i = 0; i < balls.length; i++) {
+		if(balls[i][1]+balls[i][3]>=height-paddleh){
+			//add half of paddlew instead of 1 forward 2 back
+			if(balls[i][0]>paddlex-paddlew/2&&balls[i][0]<paddlex-paddlew/2+paddlew){
+				// ndy=-dy;
+				balls[i][3]=-balls[i][3];
+				if(balls[i][0]<paddlex-paddlew/4){
+					if(balls[i][2]>0){
+						//reverse and increase the speed and angle of the ball
+						// console.log("Changed to Left")
+						balls[i][2]=-balls[i][2]*1.1;	
+						//ndx=dx;
+					}
+					else{
+						balls[i][2]=balls[i][2]*1.1;
+						//ndx=dx;
+						// console.log("Continued going Left");
+					}
 				}
+				else if(balls[i][0]>paddlex+paddlew/4){
+					// console.log("Hit Right Corner")
+					if(balls[i][2]>0){
+						balls[i][2]=balls[i][2]*1.1;
+					}
+					else{
+						balls[i][2]=-balls[i][2]*1.1;
+					}
+				}
+				for (var i = 0; i < balls.length; i++) {
+					if(throwBall){
+						caughtBall=true;
+						balls[i][4]=balls[i][2];
+						balls[i][5]=balls[i][3];
+						balls[i][2]=0;
+						balls[i][3]=0;
+						console.log("Ball is frozen")
+						nx=balls[i][0];
+						ny=balls[i][1];
+						distanceBetween=paddlex-nx;
+						console.log(distanceBetween);
+					}
+				
 				else{
-					dx=dx*1.1;
-					//ndx=dx;
-					// console.log("Continued going Left");
+					// dx=ndx;
+					// dy=ndy;
+					// ndx=null;
+					// ndy=null;
+					console.log("Ball bounced normally.");
 				}
 			}
-			else if(x>paddlex+paddlew/4){
-				// console.log("Hit Right Corner")
-				if(dx>0){
-					dx=dx*1.1;
-				}
-				else{
-					dx=-dx*1.1;
-				}
 			}
-			if(throwBall){
-				caughtBall=true;
-				ndx=dx;
-				ndy=dy;
-				dx=0;
-				dy=0;
-				console.log("Ball is frozen")
-				nx=x;
-				ny=y;
-				distanceBetween=paddlex-nx;
-				console.log(distanceBetween);
-			}
-			else{
-				// dx=ndx;
-				// dy=ndy;
-				// ndx=null;
-				// ndy=null;
-				console.log("Ball bounced normally.");
-			}
-		}
 
-		else{
-			// console.log("Game is over.");
-			ctx.font= width/6+"px Ariel";
-			var textString="You Lose!";
-			var textWidth=ctx.measureText(textString).width;
-			bgColour="#6E463F";
-			ctx.fillStyle="white";
-			ctx.fillText(textString,width/2-textWidth/2,height/2);
-			
+			else{
+				if(balls.length===1){
+					// console.log("Game is over.");
+					ctx.font= width/6+"px Ariel";
+					var textString="You Lose!";
+					var textWidth=ctx.measureText(textString).width;
+					bgColour="#6E463F";
+					ctx.fillStyle="white";
+					ctx.fillText(textString,width/2-textWidth/2,height/2);
+				}
+				else{
+					balls.splice(i,1);
+				}
+				
+			}
 		}
 	}
 	if(caughtBall&&mousePos<nx){
-		x=paddlex-distanceBetween;
+		balls[0][0]=paddlex-distanceBetween;
 		console.log("Ball Moving Left");
 	}
 	else if(caughtBall&&mousePos>nx){
-		x=paddlex-distanceBetween;
+		balls[0][0]=paddlex-distanceBetween;
 		console.log("Ball moving right");
 	}
 	if(caughtBall&&bigOff){
@@ -498,20 +517,38 @@ function draw(){
 		ctx.fillText(textString,width/2-textWidth/2,height/2);
 		bgColour="purple";
 	}
-	//roof
-	if(y+dy<=0){
-		dy=-dy;
-	}
-	//right
-	if(x+dx>=width){
-		dx=-dx;
-	}
-	//left
-	if(x+dx<=0){
-		dx=-dx;
-	}
-	x+=dx;
-	y+=dy;
+	// //roof
+	// if(balls[0][1]+dy<=0){
+	// 	dy=-dy;
+	// }
+	// //right
+	// if(balls[0][0]+dx>=width){
+	// 	dx=-dx;
+	// }
+
+	for (var i = 0; i < balls.length; i++) {
+		//left
+		if(balls[i][0]+balls[i][2]<=0){
+			balls[i][2]=-balls[i][2];//dx
+		}
+		//right
+		if(balls[i][0]+balls[i][2]>=width){
+			balls[i][2]=-balls[i][2];//dx
+		}
+		//roof
+		if(balls[i][1]+balls[i][3]<=0){
+			balls[i][3]=-balls[i][3];//dy
+		}
+		// //floor
+		// if(balls[i][1]+balls[i][3]>=height-20){
+		// 	balls[i][3]=-balls[i][3];//dy
+		// }
+		balls[i][0]+=balls[i][2];//dx
+		balls[i][1]+=balls[i][3];//dy
+
+	};
+
+	
 	//mouse Move
 	if(mousePos>paddlex+paddledx){
 		rightDown=true;
