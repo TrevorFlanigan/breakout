@@ -1,7 +1,7 @@
 var balls = [
-	[45,62],
-	[32,50],
-	[89,67]
+	{ x: width/2, y: height/2, dx:dx, dy:dy, ndx:ndx},
+	{ x: 110, y:110, dx:dx, dy:dy, ndx:ndx},
+	{ x: 200, y:50, dx:dx, dy:dy, ndx:ndx}
 ];
 console.log(balls);
 
@@ -25,3 +25,15 @@ for (var i = 0; i < balls.length; i++) {
 	};
 
 
+	else if(throwBall>0&&caughtBall){
+		throwBall--;
+		dx=ndx;
+		dy=ndy;
+		caughtBall=false;
+	//	caughtBall=true;
+		console.log("You threw the ball!");
+	}
+	else{
+		console.log("No ammo and no throwBall");
+	}
+}

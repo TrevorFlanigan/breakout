@@ -53,8 +53,9 @@ var nx;
 var ny;
 var distanceBetween;
 var balls = [
-	[width/2,height/2,dx,dy],
-	[50,100,dx,dy]
+	{ x: width/2, y: height/2, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween},
+	{ x: 110, y:110, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween},
+	{ x: 200, y:50, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween}
 ];
 // var mouseX=event.screenX;
 //console.log("canvas width "+canvas.width+",  height "+canvas.height);
@@ -79,33 +80,39 @@ function startTimer(){
 		 }
 	}
 }
+
+
+
 function givePowerup(row,col){
-	//console.log(row+" "+col);
-	if(bricks[row][col]===2){
-		paddlew=400;
-		resetPowerups("bigPaddle");
-		// console.log(paddlew);
-	}
-	else if(bricks[row][col]===3){
-		paddlew=150;
-		resetPowerups("smallPaddle");
-	}
-	else if(bricks[row][col]===4){
-		resetPowerups("slowBall");
-		dx=dx/2;
-		dy=dy/2;
-	}
-	else if(bricks[row][col]===5){
-		resetPowerups("laser");
-		useLaser=true;
-		ammo+=5;
-	//	console.log(bricks[row][col]);
-	}
-	else if(bricks[row][col]===6){
-		throwBall+=5;
-		console.log("Thowball activated ammo: "+throwBall);
-	}
+	for (var i = 0; i < balls.length; i++) {
+		//console.log(row+" "+col);
+		if(bricks[row][col]===2){
+			paddlew=400;
+			resetPowerups("bigPaddle");
+			// console.log(paddlew);
+		}
+		else if(bricks[row][col]===3){
+			paddlew=150;
+			resetPowerups("smallPaddle");
+		}
+		else if(bricks[row][col]===4){
+			resetPowerups("slowBall");
+			balls[i].dx=balls[i].dx/2;
+			balls[i].dy=balls[i].dy/2;
+		}
+		else if(bricks[row][col]===5){
+			resetPowerups("laser");
+			useLaser=true;
+			ammo+=5;
+		//	console.log(bricks[row][col]);
+		}
+		else if(bricks[row][col]===6){
+			throwBall+=5;
+			console.log("Thowball activated ammo: "+throwBall);
+		}
+	};
 }
+
 function drawLaser(){
 	for (var i=nrows-1; i>=0; i--) {
 		if(bricks[i][column]>0){
@@ -145,6 +152,7 @@ function drawLaser(){
 function interact(){
 	if(!caughtBall){
 		if(useLaser){
+			
 			if(ammo>0){
 				console.log("You fired your laser.");
 				laserTimer=50;
@@ -166,18 +174,25 @@ function interact(){
 			}
 		}
 	}
+	
+
 	else if(throwBall>0&&caughtBall){
-		throwBall--;
-		dx=ndx;
-		dy=ndy;
-		caughtBall=false;
-	//	caughtBall=true;
-		console.log("You threw the ball!");
+		for (var i = 0; i < balls.length; i++) {
+			throwBall--;
+			balls[i].dx=balls[i].ndx;
+			balls[i].dy=balls[i].ndy;
+			caughtBall=false;
+			console.log(caughtBall);
+		//	caughtBall=true;
+			console.log("You threw the ball!");
 	}
+}
 	else{
 		console.log("No ammo and no throwBall");
 	}
+
 }
+
 function brickIcon(icon,i,j){
 	ctx.drawImage(icon, j*(brickWidth+padding*2)+brickWidth/2, i*(brickHeight+padding*2));
 }
@@ -340,7 +355,7 @@ function draw(){
 	ctx.fillStyle="white";
 	for (var i = 0; i < balls.length; i++) {
 		ctx.beginPath();
-		ctx.arc(balls[i][0],balls[i][1],10,0,2*Math.PI);
+		ctx.arc(balls[i].x,balls[i].y,10,0,2*Math.PI);
 		ctx.fill();
 	};
 	ctx.fillStyle="green";
@@ -391,12 +406,12 @@ function draw(){
 	var rowHeight=brickHeight+padding;
 	var colWidth=brickWidth+padding;
 	for (var i = 0; i < balls.length; i++) {
-		var row=Math.floor(balls[i][1]/rowHeight);
-		var col=Math.floor(balls[i][0]/colWidth);
-		if(balls[i][1]<rowHeight*nrows && /*row>=0 && col>=0 &&*/ bricks[row][col]>=1){
+		var row=Math.floor(balls[i].y/rowHeight);
+		var col=Math.floor(balls[i].x/colWidth);
+		if(balls[i].y<rowHeight*nrows && /*row>=0 && col>=0 &&*/ bricks[row][col]>=1){
 			givePowerup(row,col);
 			bricks[row][col]=0;
-			balls[i][3]=-balls[i][3];
+			balls[i].dy=-balls[i].dy;
 		}
 	}
 
@@ -426,45 +441,45 @@ function draw(){
 
 //console.log(row+" "+col);
 	for (var i = 0; i < balls.length; i++) {
-		if(balls[i][1]+balls[i][3]>=height-paddleh){
+		if(balls[i].y+balls[i].dy>=height-paddleh){
 			//add half of paddlew instead of 1 forward 2 back
-			if(balls[i][0]>paddlex-paddlew/2&&balls[i][0]<paddlex-paddlew/2+paddlew){
+			if(balls[i].x>paddlex-paddlew/2&&balls[i].x<paddlex-paddlew/2+paddlew){
 				// ndy=-dy;
-				balls[i][3]=-balls[i][3];
-				if(balls[i][0]<paddlex-paddlew/4){
-					if(balls[i][2]>0){
+				balls[i].dy=-balls[i].dy;
+				if(balls[i].x<paddlex-paddlew/4){
+					if(balls[i].dx>0){
 						//reverse and increase the speed and angle of the ball
 						// console.log("Changed to Left")
-						balls[i][2]=-balls[i][2]*1.1;	
+						balls[i].dx=-balls[i].dx*1.1;	
 						//ndx=dx;
 					}
 					else{
-						balls[i][2]=balls[i][2]*1.1;
+						balls[i].dx=balls[i].dx*1.1;
 						//ndx=dx;
 						// console.log("Continued going Left");
 					}
 				}
-				else if(balls[i][0]>paddlex+paddlew/4){
+				else if(balls[i].x>paddlex+paddlew/4){
 					// console.log("Hit Right Corner")
-					if(balls[i][2]>0){
-						balls[i][2]=balls[i][2]*1.1;
+					if(balls[i].dx>0){
+						balls[i].dx=balls[i].dx*1.1;
 					}
 					else{
-						balls[i][2]=-balls[i][2]*1.1;
+						balls[i].dx=-balls[i].dx*1.1;
 					}
 				}
 				for (var i = 0; i < balls.length; i++) {
 					if(throwBall){
 						caughtBall=true;
-						balls[i][4]=balls[i][2];
-						balls[i][5]=balls[i][3];
-						balls[i][2]=0;
-						balls[i][3]=0;
+						balls[i].ndx=balls[i].dx;
+						balls[i].ndy=balls[i].dy;
+						balls[i].dx=0;
+						balls[i].dy=0;
 						console.log("Ball is frozen")
-						nx=balls[i][0];
-						ny=balls[i][1];
-						distanceBetween=paddlex-nx;
-						console.log(distanceBetween);
+						balls[i].nx=balls[i].x;
+						balls[i].ny=balls[i].y;
+					balls[i].distanceBetween=paddlex-nx;
+						//console.log(distanceBetween);
 					}
 				
 				else{
@@ -494,20 +509,22 @@ function draw(){
 			}
 		}
 	}
+	for (var i = 0; i < balls.length; i++) {
+	
 	if(caughtBall&&mousePos<nx){
-		balls[0][0]=paddlex-distanceBetween;
+		balls[i].dx=paddlex-balls[i].distanceBetween;
 		console.log("Ball Moving Left");
 	}
 	else if(caughtBall&&mousePos>nx){
-		balls[0][0]=paddlex-distanceBetween;
+		balls[i].dx=paddlex-balls[i].distanceBetween;
 		console.log("Ball moving right");
 	}
 	if(caughtBall&&bigOff){
 		console.log(bigOff);
-		distanceBetween=distanceBetween/2;
+		balls[i].distanceBetween=balls[i].distanceBetween/2;
 		bigOff=false;
 	}
-
+};
 	if(checkWin()){	
 		// console.log("You Won!");
 		ctx.font= width/6+"px Ariel";
@@ -528,23 +545,23 @@ function draw(){
 
 	for (var i = 0; i < balls.length; i++) {
 		//left
-		if(balls[i][0]+balls[i][2]<=0){
-			balls[i][2]=-balls[i][2];//dx
+		if(balls[i].x+balls[i].dx<=0){
+			balls[i].dx=-balls[i].dx;//dx
 		}
 		//right
-		if(balls[i][0]+balls[i][2]>=width){
-			balls[i][2]=-balls[i][2];//dx
+		if(balls[i].x+balls[i].dx>=width){
+			balls[i].dx=-balls[i].dx;//dx
 		}
 		//roof
-		if(balls[i][1]+balls[i][3]<=0){
-			balls[i][3]=-balls[i][3];//dy
+		if(balls[i].y+balls[i].dy<=0){
+			balls[i].dy=-balls[i].dy;//dy
 		}
 		// //floor
-		// if(balls[i][1]+balls[i][3]>=height-20){
-		// 	balls[i][3]=-balls[i][3];//dy
+		// if(balls[i].y+balls[i].dy>=height-20){
+		// 	balls[i].dy=-balls[i].dy;//dy
 		// }
-		balls[i][0]+=balls[i][2];//dx
-		balls[i][1]+=balls[i][3];//dy
+		balls[i].x+=balls[i].dx;//dx
+		balls[i].y+=balls[i].dy;//dy
 
 	};
 
