@@ -37,3 +37,19 @@ for (var i = 0; i < balls.length; i++) {
 		console.log("No ammo and no throwBall");
 	}
 }
+
+
+	switch (balls[i]) {
+		case "balls[0]":
+			console.log("Ball 1 has frozen");
+			balls[0].dx=0;
+			break;
+		case "balls[1]":
+			console.log("Ball 2 has frozen");
+			balls[1].dx=0;
+			break;
+		case "balls[2]":
+			console.log("Ball 3 has frozen");
+			balls[2].dx=0;
+			break;
+	}
