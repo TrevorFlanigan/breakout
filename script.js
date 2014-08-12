@@ -40,7 +40,7 @@ var ammo=0;
 var laserWidth=2;
 var column;
 var row;
-var timer=30;
+var timer=18;
 var countdownTimer;
 var bigOn;
 var bigOff;
@@ -52,6 +52,7 @@ var moveLeft=false;
 var moveRight=true;
 var nx;
 var ny;
+var stopTimer;
 var distanceBetween=0;
 var balls = [
     { x: width/2, y: height/2, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween, frozen:false, olddy:dy,olddx:dx},
@@ -68,10 +69,13 @@ ctx.fill();*/
 
 //Javascript
 function startTimer(){
-  var stopTimer=setInterval(
+  stopTimer=setInterval(
         function countdown(){
             timer--;
             console.log(timer);
+            if (timer==0){
+                clearInterval(stopTimer);
+            }
         },1000
     );
 }
@@ -89,6 +93,7 @@ function givePowerup(row,col){
         else if(bricks[row][col]===3){
             paddlew=150;
             resetPowerups("smallPaddle");
+            startTimer();
         }
         else if(bricks[row][col]===4){
             for (var i = 0; i < balls.length; i++) {
@@ -186,6 +191,7 @@ function interact(){
             console.log(caughtBall);
         //  caughtBall=true;
             console.log("You threw the ball!");
+            console.log(throwBall);
             balls[i].frozen=false;
     }
 }
@@ -251,9 +257,15 @@ function resetPowerups(powerUp){
             setTimeout(
                 function(){
                      for (var i = 0; i < balls.length; i++) {
-                        balls[i].dx=balls[i].olddx;
+                        // balls[i].dx=balls[i].olddx;
+                        if(balls[i].dx<0){
+                            balls[i].dy=-balls[i].olddx;
+                        }
+                        else{
+                            balls[i].dx=balls[i].olddx;
+                        }
                         if(balls[i].dy<0){
-                            balls[i].dy=-balls[i].olddy
+                            balls[i].dy=-balls[i].olddy;
                         }
                         else{
                             balls[i].dy=balls[i].olddy;
@@ -386,9 +398,7 @@ function draw(){
             balls[i].dy=0;
         }
     };
-     if (timer==0){
-        clearInterval(stopTimer);
-    }
+
     for(i=0;i<nrows;i++){
         for(j=0;j<ncols;j++){
             if(bricks[i][j]===1){
