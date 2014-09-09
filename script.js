@@ -59,8 +59,17 @@ var balls = [
     { x: 110, y:110, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween, frozen:false, olddy:dy,olddx:dx},
     { x: 200, y:50, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween, frozen:false, olddy:dy,olddx:dx}
 ];
+var powerupTimers=
+{bigPaddle:0,
+smallPaddle:0,
+slowBall:0};
+
+var powerupIntvs=
+{bigPaddle:null,
+smallPaddle:null,
+slowBall:null};
 // var mouseX=event.screenX;
-//console.log("canvas width "+canvas.width+",  height "+canvas.height);
+//console.log(ss"canvas width "+canvas.width+",  height "+canvas.height);
 /*ctx.fillStyle="black";
 ctx.fillRect(0,0,width,height);
 ctx.fillStyle="white";
@@ -68,13 +77,15 @@ ctx.arc(width/2,height/2,10,0,2*Math.PI);
 ctx.fill();*/
 
 //Javascript
-function startTimer(){
+function startTimer(powerup){
+    timer=powerup;
   stopTimer=setInterval(
         function countdown(){
             timer--;
-            console.log(timer);
+            // console.log(timer);
             if (timer==0){
                 clearInterval(stopTimer);
+                timer=18;
             }
         },1000
     );
@@ -87,13 +98,13 @@ function givePowerup(row,col){
         if(bricks[row][col]===2){
             paddlew=400;
             resetPowerups("bigPaddle");
-            startTimer();
+            startTimer(18);
             // console.log(paddlew);
         }
         else if(bricks[row][col]===3){
             paddlew=150;
             resetPowerups("smallPaddle");
-            startTimer();
+            startTimer(18);
         }
         else if(bricks[row][col]===4){
             for (var i = 0; i < balls.length; i++) {
@@ -112,7 +123,11 @@ function givePowerup(row,col){
         }
         else if(bricks[row][col]===6){
             throwBall+=5;
-            console.log("Thowball activated ammo: "+throwBall);
+            // console.log("Thowball activated ammo: "+throwBall);
+        }
+        else if(bricks[row][col]===7){
+            resetPowerups("multiBall");
+            // console.log("New Ball Created");
         }
     
 }
@@ -230,7 +245,8 @@ var sources = {
     slow: 'images/slow.png',
     small: 'images/small.png',
     laser: 'images/laser.png',
-    throwBall:'images/throwBall.png'
+    throwBall:'images/throwBall.png',
+    multiBall:'images/multi-ball.png'
 };
 
 loadImages(sources, function() {
@@ -243,17 +259,21 @@ function resetPowerups(powerUp){
     switch (powerUp) {
         case "bigPaddle":
             // console.log("Big Paddle");
+            clearInterval(powerupIntvs.bigPaddle);
+            powerupTimers.bigPaddle+=18000;
+            powerupIntvs.bigPaddle=setInterval(function(){powerupTimers.bigPaddle-=1000;},1000);
             bigOn=true;
-            setTimeout(function(){paddlew=200;bigOff=true},18000);
+            // setTimeout(function(){paddlew=200;bigOff=true;},18000);
             // startTimer();
             break;
         case "smallPaddle":
             // console.log("Small Paddle");
+            powerupTimers.smallPaddle=18000;
             setTimeout(function(){paddlew=200},18000);
             break;
         case "slowBall":
             // console.log("Slow Ball");
-            
+            powerupTimers.slowBall=18000;
             setTimeout(
                 function(){
                      for (var i = 0; i < balls.length; i++) {
@@ -270,19 +290,20 @@ function resetPowerups(powerUp){
                         else{
                             balls[i].dy=balls[i].olddy;
                         }
-                        console.log(balls[i].dx);
+                        // console.log(balls[i].dx);
                      };
                 },18000);
             break;
-
+        case "multiBall":
+            // console.log("Multiball On");
+            break;
         case "laser":
-            console.log("laser is on");
-
+            // console.log("laser is on");
             break;
     }
 }
 function randBrick(){
-  var numbers=[1,1,1,1,1,1,1,4,2,3,1,1,1,1,1,1,1,1,1,1,0,5,6];
+  var numbers=[1,1,1,1,1,1,1,4,2,3,1,1,1,1,1,1,1,1,1,1,0,5,6,7];
   var idx = Math.floor(Math.random() * numbers.length);
   return numbers[idx];
 }
@@ -375,6 +396,13 @@ function initBricks(){
 
 var bgColour="black";
 function draw(){
+    if(powerupTimers.bigPaddle<=0){
+        clearInterval(powerupIntvs.bigPaddle);
+        paddlew=200;
+        bigOff=true;
+
+    }
+    console.log(powerupTimers.bigPaddle);
     // console.log(mouseX);
     //console.log("Ping");
     ctx.fillStyle=bgColour;
@@ -433,11 +461,17 @@ function draw(){
                 fillBrick(i,j);
                 brickIcon(images.throwBall,i,j);
             }
+            else if(bricks[i][j]===7){
+                ctx.fillStyle="black";
+                fillBrick(i,j);
+             //   brickIcon(images.multiBall.png,i,j);
+            }
         }
     } 
 
                 if(bgColour!=="black"){
         clearInterval(interval);
+        clearInterval(powerupIntvs.bigPaddle)
     }
     //bounce
     var rowHeight=brickHeight+padding;
@@ -509,7 +543,7 @@ function draw(){
                     if(throwBall){
                         caughtBall=true;
                         balls[i].distanceBetween=balls[i].x-paddlex;
-                        console.log(balls[i].distanceBetween);
+                        // console.log(balls[i].distanceBetween);
                         balls[i].frozen=true;
                         balls[i].ndx=balls[i].dx;
                         balls[i].ndy=balls[i].dy;
@@ -535,10 +569,10 @@ function draw(){
                             // }
                         // balls[i].dx=0;
                         // balls[i].dy=0;
-                        console.log("Ball is frozen")
+                        // console.log("Ball is frozen")
                         balls[i].nx=balls[i].x;
                         balls[i].ny=balls[i].y;
-                        //console.log(distanceBetween);
+                        // console.log(distanceBetween);
                     }
                 
                 else{
@@ -546,7 +580,7 @@ function draw(){
                     // dy=ndy;
                     // ndx=null;
                     // ndy=null;
-                    console.log("Ball bounced normally.");
+                    // console.log("Ball bounced normally.");
                 }
             // }
             }
@@ -572,14 +606,14 @@ function draw(){
     
     if(caughtBall&&mousePos<nx){
         balls[i].dx=paddlex-balls[i].distanceBetween;
-        console.log("Ball Moving Left");
+        // console.log("Ball Moving Left");
     }
     else if(caughtBall&&mousePos>nx){
         balls[i].dx=paddlex-balls[i].distanceBetween;
-        console.log("Ball moving right");
+        // console.log("Ball moving right");
     }
     if(caughtBall&&bigOff){
-        console.log(bigOff);
+        // console.log(bigOff);
         balls[i].distanceBetween=balls[i].distanceBetween/2;
         bigOff=false;
     }
