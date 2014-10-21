@@ -68,6 +68,7 @@ var powerupIntvs=
 {bigPaddle:null,
 smallPaddle:null,
 slowBall:null};
+var multiBall;
 // var mouseX=event.screenX;
 //console.log(ss"canvas width "+canvas.width+",  height "+canvas.height);
 /*ctx.fillStyle="black";
@@ -77,19 +78,21 @@ ctx.arc(width/2,height/2,10,0,2*Math.PI);
 ctx.fill();*/
 
 //Javascript
-function startTimer(powerup){
-    timer=powerup;
-  stopTimer=setInterval(
-        function countdown(){
-            timer--;
-            // console.log(timer);
-            if (timer==0){
-                clearInterval(stopTimer);
-                timer=18;
-            }
-        },1000
-    );
-}
+
+
+// function startTimer(time){
+//     timer=time;
+//   stopTimer=setInterval(
+//         function countdown(){
+//             timer--;
+//             // console.log(timer);
+//             if (timer==0){
+//                 clearInterval(stopTimer);
+//                 timer=18;
+//             }
+//         },1000
+//     );
+// }
 
 
 function givePowerup(row,col){
@@ -98,17 +101,18 @@ function givePowerup(row,col){
         if(bricks[row][col]===2){
             paddlew=400;
             resetPowerups("bigPaddle");
-            startTimer(18);
+            // startTimer(18);
             // console.log(paddlew);
         }
         else if(bricks[row][col]===3){
             paddlew=150;
             resetPowerups("smallPaddle");
-            startTimer(18);
+            console.log(paddlew);
+            // startTimer(18);
         }
         else if(bricks[row][col]===4){
+            resetPowerups("slowBall");
             for (var i = 0; i < balls.length; i++) {
-                resetPowerups("slowBall");
                 console.log("before "+balls[i].dx);
                 balls[i].dx=balls[i].dx/2;
                 balls[i].dy=balls[i].dy/2;
@@ -131,7 +135,38 @@ function givePowerup(row,col){
         }
     
 }
-
+function drawTimer(){
+    if(powerupTimers.bigPaddle>0){
+        ctx.font="20px Georgia";    
+        ctx.fillStyle="#ffffff"
+        ctx.fillText("Big Paddle: "+powerupTimers.bigPaddle/1000,10,200);
+    }   
+    if(powerupTimers.slowBall>0){
+        ctx.font="20px Georgia";    
+        ctx.fillStyle="#ffffff"
+        ctx.fillText("Slow Ball:"+powerupTimers.slowBall/1000,10,400);
+    }
+    if(powerupTimers.smallPaddle>0){
+        ctx.font="20px Georgia";    
+        ctx.fillStyle="#ffffff"
+        ctx.fillText("Small Paddle:"+powerupTimers.smallPaddle/1000,10,300);
+    }
+    if(balls.length>1){
+        ctx.font="20px Georgia";    
+        ctx.fillStyle="#ffffff"
+        ctx.fillText("Multiball",10,500);
+    }
+    if(ammo>0){
+        ctx.font="20px Georgia";    
+        ctx.fillStyle="#ffffff"
+        ctx.fillText("Laser Ammo: "+ammo,10,600);
+    }
+    if(throwBall>0){
+        ctx.font="20px Georgia";    
+        ctx.fillStyle="#ffffff"
+        ctx.fillText("Catches "+throwBall,10,650);
+    }
+}
 function drawLaser(){
     for (var i=nrows-1; i>=0; i--) {
         if(bricks[i][column]>0){
@@ -255,6 +290,7 @@ loadImages(sources, function() {
     initBricks();
     interval = setInterval(draw,5);
 });
+//needs to be fixed here 
 function resetPowerups(powerUp){
     switch (powerUp) {
         case "bigPaddle":
@@ -262,24 +298,27 @@ function resetPowerups(powerUp){
             clearInterval(powerupIntvs.bigPaddle);
             powerupTimers.bigPaddle+=18000;
             powerupIntvs.bigPaddle=setInterval(function(){powerupTimers.bigPaddle-=1000;},1000);
+            setTimeout(function(){paddlew=200;},18000)
             bigOn=true;
             // setTimeout(function(){paddlew=200;bigOff=true;},18000);
             // startTimer();
             break;
         case "smallPaddle":
             // console.log("Small Paddle");
-            powerupTimers.smallPaddle=18000;
+            powerupTimers.smallPaddle+=18000;
             setTimeout(function(){paddlew=200},18000);
+            powerupIntvs.smallPaddle=setInterval(function(){powerupTimers.smallPaddle-=1000;},1000);
             break;
         case "slowBall":
             // console.log("Slow Ball");
-            powerupTimers.slowBall=18000;
+            powerupTimers.slowBall+=18000;
+            powerupIntvs.slowBall=setInterval(function(){powerupTimers.slowBall-=1000;},1000);
             setTimeout(
                 function(){
                      for (var i = 0; i < balls.length; i++) {
                         // balls[i].dx=balls[i].olddx;
                         if(balls[i].dx<0){
-                            balls[i].dy=-balls[i].olddx;
+                            balls[i].dx=-balls[i].olddx;
                         }
                         else{
                             balls[i].dx=balls[i].olddx;
@@ -395,20 +434,25 @@ function initBricks(){
 }
 
 var bgColour="black";
-function draw(){
-    if(powerupTimers.bigPaddle<=0){
-        clearInterval(powerupIntvs.bigPaddle);
-        paddlew=200;
-        bigOff=true;
 
-    }
-    console.log(powerupTimers.bigPaddle);
+function draw(){
+
+    // if(powerupTimers.bigPaddle<=0){
+    //     clearInterval(powerupIntvs.bigPaddle);
+    //     paddlew=200;
+    //     bigOff=true;
+
+    // }
+    // console.log(powerupTimers.bigPaddle);
     // console.log(mouseX);
     //console.log("Ping");
     ctx.fillStyle=bgColour;
+    // drawTimer();
+
     //ctx.clearRect(0,0,width,height);
     ctx.fillRect(0,0,width,height);
     ctx.fillStyle="white";
+    drawTimer();
     for (var i = 0; i < balls.length; i++) {
         ctx.beginPath();
         ctx.arc(balls[i].x,balls[i].y,10,0,2*Math.PI);
@@ -599,9 +643,35 @@ function draw(){
                     balls.splice(i,1);
                 }
                 
+                
             }
         }
+
     }
+    //SHOW THE ICONS
+
+    // switch(drawTimer()){
+    //     case "big":
+
+    //     break;
+    //     case "small":
+
+    //     break;
+    //     case "slow":
+
+    //     break;
+    //     case "multi":
+
+    //     break;
+    //     case "laser":
+
+    //     break;
+    //     case "throw":
+
+    //     break;
+    // }
+    
+    
     for (var i = 0; i < balls.length; i++) {
     
     if(caughtBall&&mousePos<nx){
@@ -693,3 +763,4 @@ function draw(){
 // initBricks();
 // var interval = setInterval(draw,5);
 //Left = 37, Right = 39
+
