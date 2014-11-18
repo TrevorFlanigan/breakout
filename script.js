@@ -68,7 +68,19 @@ var powerupIntvs=
 {bigPaddle:null,
 smallPaddle:null,
 slowBall:null};
+
+
+var powerupTimeouts=
+{bigPaddle:null,
+smallPaddle:null,
+slowBall:null};
+
+
+
 var multiBall;
+var bigHit=false;
+// var smallHit=false;
+// var slowHit=false;
 // var mouseX=event.screenX;
 //console.log(ss"canvas width "+canvas.width+",  height "+canvas.height);
 /*ctx.fillStyle="black";
@@ -100,18 +112,24 @@ function givePowerup(row,col){
         //console.log(row+" "+col);
         if(bricks[row][col]===2){
             paddlew=400;
+            // if(bigHit==false){
             resetPowerups("bigPaddle");
+            // }
             // startTimer(18);
             // console.log(paddlew);
         }
         else if(bricks[row][col]===3){
             paddlew=150;
+            // if(smallHit==false){
             resetPowerups("smallPaddle");
             console.log(paddlew);
             // startTimer(18);
+            // }
         }
         else if(bricks[row][col]===4){
+            // if(slowHit=false){
             resetPowerups("slowBall");
+        // }
             for (var i = 0; i < balls.length; i++) {
                 console.log("before "+balls[i].dx);
                 balls[i].dx=balls[i].dx/2;
@@ -133,6 +151,7 @@ function givePowerup(row,col){
             resetPowerups("multiBall");
             // console.log("New Ball Created");
         }
+
     
 }
 function drawTimer(){
@@ -295,22 +314,43 @@ function resetPowerups(powerUp){
     switch (powerUp) {
         case "bigPaddle":
             // console.log("Big Paddle");
+            if(!bigHit){
+                console.log(bigHit);
+                bigHit=true;
+                console.log(bigHit);
             clearInterval(powerupIntvs.bigPaddle);
+            powerupTimeouts.bigPaddle=18000;
             powerupTimers.bigPaddle+=18000;
             powerupIntvs.bigPaddle=setInterval(function(){powerupTimers.bigPaddle-=1000;},1000);
-            setTimeout(function(){paddlew=200;},18000)
+            var tester1=setTimeout(function(){paddlew=200;bigHit=false;},powerupTimeouts.bigPaddle)
+            console.log("TESTER1 "+tester1);
             bigOn=true;
+        }
+        else if(bigHit){
+            clearTimeout(tester1)
+            tester1=setTimeout(function(){paddlew=200;bigHit=false;},powerupTimeouts.bigPaddle+powerupTimers.bigPaddle)
+            powerupTimers.bigPaddle+=18000;
+        }
             // setTimeout(function(){paddlew=200;bigOff=true;},18000);
             // startTimer();
             break;
         case "smallPaddle":
             // console.log("Small Paddle");
+            // smallHit=true;
             powerupTimers.smallPaddle+=18000;
-            setTimeout(function(){paddlew=200},18000);
+            setTimeout(function(){
+            if(!bigHit){
+                paddlew=200;
+            }
+            
+            /*smallHit=false;*/
+
+        },18000);
             powerupIntvs.smallPaddle=setInterval(function(){powerupTimers.smallPaddle-=1000;},1000);
             break;
         case "slowBall":
             // console.log("Slow Ball");
+            // slowHit=true;
             powerupTimers.slowBall+=18000;
             powerupIntvs.slowBall=setInterval(function(){powerupTimers.slowBall-=1000;},1000);
             setTimeout(
@@ -331,6 +371,7 @@ function resetPowerups(powerUp){
                         }
                         // console.log(balls[i].dx);
                      };
+                     // slowHit=false;
                 },18000);
             break;
         case "multiBall":
