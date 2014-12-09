@@ -75,6 +75,11 @@ var powerupTimeouts=
 smallPaddle:null,
 slowBall:null};
 
+var powerupAmmo=
+{bigPaddle:0,
+smallPaddle:0,
+slowBall:0};
+
 
 
 var multiBall;
@@ -111,31 +116,34 @@ function givePowerup(row,col){
     
         //console.log(row+" "+col);
         if(bricks[row][col]===2){
-            paddlew=400;
+            // paddlew=400;
             // if(bigHit==false){
-            resetPowerups("bigPaddle");
-            // }
+            // resetPowerups("bigPaddle");
+ // }
+            powerupAmmo.bigPaddle+=3600;
             // startTimer(18);
             // console.log(paddlew);
         }
         else if(bricks[row][col]===3){
-            paddlew=150;
+            powerupAmmo.smallPaddle+=3600;
+            // paddlew=150;
             // if(smallHit==false){
-            resetPowerups("smallPaddle");
-            console.log(paddlew);
+            // resetPowerups("smallPaddle");
+            // console.log(paddlew);
             // startTimer(18);
             // }
         }
         else if(bricks[row][col]===4){
+            powerupAmmo.slowBall+=3600;
             // if(slowHit=false){
-            resetPowerups("slowBall");
+            // resetPowerups("slowBall");
         // }
-            for (var i = 0; i < balls.length; i++) {
-                console.log("before "+balls[i].dx);
-                balls[i].dx=balls[i].dx/2;
-                balls[i].dy=balls[i].dy/2;
-                console.log(balls[i].dx);
-            };
+            // for (var i = 0; i < balls.length; i++) {
+            //     console.log("before "+balls[i].dx);
+            //     balls[i].dx=balls[i].dx/2;
+            //     balls[i].dy=balls[i].dy/2;
+            //     console.log(balls[i].dx);
+            // };
         }
         else if(bricks[row][col]===5){
             resetPowerups("laser");
@@ -155,20 +163,20 @@ function givePowerup(row,col){
     
 }
 function drawTimer(){
-    if(powerupTimers.bigPaddle>0){
+    if(powerupAmmo.bigPaddle>0){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
-        ctx.fillText("Big Paddle: "+powerupTimers.bigPaddle/1000,10,200);
+        ctx.fillText("Big Paddle: "+Math.floor(powerupAmmo.bigPaddle*5/1000,0),10,200);
     }   
     if(powerupTimers.slowBall>0){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
         ctx.fillText("Slow Ball:"+powerupTimers.slowBall/1000,10,400);
     }
-    if(powerupTimers.smallPaddle>0){
+    if(powerupAmmo.smallPaddle>0){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
-        ctx.fillText("Small Paddle:"+powerupTimers.smallPaddle/1000,10,300);
+        ctx.fillText("Small Paddle:"+Math.floor(powerupAmmo.smallPaddle*5/1000,0),10,300);
     }
     if(balls.length>1){
         ctx.font="20px Georgia";    
@@ -312,42 +320,42 @@ loadImages(sources, function() {
 //needs to be fixed here 
 function resetPowerups(powerUp){
     switch (powerUp) {
-        case "bigPaddle":
-            // console.log("Big Paddle");
-            if(!bigHit){
-                console.log(bigHit);
-                bigHit=true;
-                console.log(bigHit);
-            clearInterval(powerupIntvs.bigPaddle);
-            powerupTimeouts.bigPaddle=18000;
-            powerupTimers.bigPaddle+=18000;
-            powerupIntvs.bigPaddle=setInterval(function(){powerupTimers.bigPaddle-=1000;},1000);
-            var tester1=setTimeout(function(){paddlew=200;bigHit=false;},powerupTimeouts.bigPaddle)
-            console.log("TESTER1 "+tester1);
-            bigOn=true;
-        }
-        else if(bigHit){
-            clearTimeout(tester1)
-            tester1=setTimeout(function(){paddlew=200;bigHit=false;},powerupTimeouts.bigPaddle+powerupTimers.bigPaddle)
-            powerupTimers.bigPaddle+=18000;
-        }
-            // setTimeout(function(){paddlew=200;bigOff=true;},18000);
-            // startTimer();
-            break;
-        case "smallPaddle":
-            // console.log("Small Paddle");
-            // smallHit=true;
-            powerupTimers.smallPaddle+=18000;
-            setTimeout(function(){
-            if(!bigHit){
-                paddlew=200;
-            }
+        // case "bigPaddle":
+        //     // console.log("Big Paddle");
+        //     if(!bigHit){
+        //         console.log(bigHit);
+        //         bigHit=true;
+        //         console.log(bigHit);
+        //     // clearInterval(powerupIntvs.bigPaddle);
+        //     powerupTimeouts.bigPaddle=18000;
+        //     powerupTimers.bigPaddle+=18000;
+        //     powerupIntvs.bigPaddle=setInterval(function(){powerupTimers.bigPaddle-=1000;},1000);
+        //     var tester1=setTimeout(function(){paddlew=200;bigHit=false;},powerupTimeouts.bigPaddle)
+        //     console.log("TESTER1 "+tester1);
+        //     bigOn=true;
+        // }
+        // else if(bigHit){
+        //     clearTimeout(tester1)
+        //     tester1=setTimeout(function(){paddlew=200;bigHit=false;},powerupTimeouts.bigPaddle+powerupTimers.bigPaddle)
+        //     powerupTimers.bigPaddle+=18000;
+        // }
+        //     // setTimeout(function(){paddlew=200;bigOff=true;},18000);
+        //     // startTimer();
+        //     break;
+        // case "smallPaddle":
+        //     // console.log("Small Paddle");
+        //     // smallHit=true;
+        //     powerupTimers.smallPaddle+=18000;
+        //     setTimeout(function(){
+        //     if(!bigHit){
+        //         paddlew=200;
+        //     }
             
-            /*smallHit=false;*/
+        //     /*smallHit=false;*/
 
-        },18000);
-            powerupIntvs.smallPaddle=setInterval(function(){powerupTimers.smallPaddle-=1000;},1000);
-            break;
+        // },18000);
+        //     powerupIntvs.smallPaddle=setInterval(function(){powerupTimers.smallPaddle-=1000;},1000);
+        //     break;
         case "slowBall":
             // console.log("Slow Ball");
             // slowHit=true;
@@ -477,12 +485,36 @@ function initBricks(){
 var bgColour="black";
 
 function draw(){
-
+//powerup effects
+    if(powerupAmmo.bigPaddle>0&&powerupAmmo.bigPaddle>powerupAmmo.smallPaddle){
+        powerupAmmo.bigPaddle-=1;
+        paddlew=400;
+        powerupAmmo.smallPaddle=0;
+    }
+    // else if(powerupAmmo.smallPaddle<=0){
+    //     paddlew=200;
+    // }
+    if(powerupAmmo.smallPaddle>0&&powerupAmmo.smallPaddle>powerupAmmo.bigPaddle){
+        powerupAmmo.smallPaddle-=1;
+        paddlew=150;
+        powerupAmmo.bigPaddle=0;
+    }
+    else if(powerupAmmo.bigPaddle<=0&&powerupAmmo.smallPaddle<=0){
+        paddlew=200;
+    }
+    // if(powerupAmmo.slowBall>0){
+    //     for (var i = 0; i < balls.length; i++) {
+    //         console.log("before "+balls[i].dx);
+    //         balls[i].dx=balls[i].dx/2;
+    //         balls[i].dy=balls[i].dy/2;
+    //         console.log(balls[i].dx);
+    //     };
+    //     powerupAmmo.slowBall-=1;
+    // }
     // if(powerupTimers.bigPaddle<=0){
     //     clearInterval(powerupIntvs.bigPaddle);
     //     paddlew=200;
     //     bigOff=true;
-
     // }
     // console.log(powerupTimers.bigPaddle);
     // console.log(mouseX);
