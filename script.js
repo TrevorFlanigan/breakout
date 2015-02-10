@@ -55,10 +55,9 @@ var ny;
 var stopTimer;
 var distanceBetween=0;
 var balls = [
-    { x: width/2, y: height/2, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween, frozen:false, olddy:dy,olddx:dx},
-    { x: 110, y:110, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween, frozen:false, olddy:dy,olddx:dx},
-    { x: 200, y:50, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween, frozen:false, olddy:dy,olddx:dx}
-];
+    { x: width/2, y: height/2, dx:dx, dy:dy, ndx:ndx, ndy:ndy, distanceBetween:distanceBetween, frozen:false, olddy:dy,olddx:dx}
+]
+var slowOn=true;
 var powerupTimers=
 {bigPaddle:0,
 smallPaddle:0,
@@ -78,12 +77,20 @@ slowBall:null};
 var powerupAmmo=
 {bigPaddle:0,
 smallPaddle:0,
-slowBall:0};
+slowBall:0
+};
 
 
 
 var multiBall;
 var bigHit=false;
+var firstSlow=false;
+
+var titles=[];
+// var powerupTitles=
+// {bigPaddle:0,
+// slowBall:0,
+// }
 // var smallHit=false;
 // var slowHit=false;
 // var mouseX=event.screenX;
@@ -121,11 +128,13 @@ function givePowerup(row,col){
             // resetPowerups("bigPaddle");
  // }
             powerupAmmo.bigPaddle+=3600;
+            powerupAmmo.smallPaddle=0;
             // startTimer(18);
             // console.log(paddlew);
         }
         else if(bricks[row][col]===3){
             powerupAmmo.smallPaddle+=3600;
+            powerupAmmo.bigPaddle=0;
             // paddlew=150;
             // if(smallHit==false){
             // resetPowerups("smallPaddle");
@@ -134,17 +143,28 @@ function givePowerup(row,col){
             // }
         }
         else if(bricks[row][col]===4){
-            powerupAmmo.slowBall+=3600;
+           console.log('slow');
+           powerupAmmo.slowBall+=3600;
+            slowOn=false;
+
+                
             // if(slowHit=false){
             // resetPowerups("slowBall");
         // }
-            // for (var i = 0; i < balls.length; i++) {
-            //     console.log("before "+balls[i].dx);
-            //     balls[i].dx=balls[i].dx/2;
-            //     balls[i].dy=balls[i].dy/2;
-            //     console.log(balls[i].dx);
-            // };
+            // if(powerupAmmo.slowBall==0){
+                console.log(firstSlow);
+            if (!firstSlow){
+            for (var i = 0; i < balls.length; i++) {
+                 //console.log("before "+balls[i].dx);
+                 console.log("before y "+balls[i].dy);
+                balls[i].olddx=balls[i].dx;
+                balls[i].olddy=balls[i].dy;
+                balls[i].dx=balls[i].dx/2;
+                balls[i].dy=balls[i].dy/2;
+                firstSlow=true;
+            };
         }
+    }
         else if(bricks[row][col]===5){
             resetPowerups("laser");
             useLaser=true;
@@ -163,36 +183,43 @@ function givePowerup(row,col){
     
 }
 function drawTimer(){
+
     if(powerupAmmo.bigPaddle>0){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
-        ctx.fillText("Big Paddle: "+Math.floor(powerupAmmo.bigPaddle*5/1000,0),10,200);
+        // ctx.fillText("Big Paddle: "+Math.floor(powerupAmmo.bigPaddle*5/1000,0),10,150);
+        titles.push("Big Paddle: "+Math.floor(powerupAmmo.bigPaddle*5/1000,0));
     }   
-    if(powerupTimers.slowBall>0){
+    if(powerupAmmo.slowBall>0){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
-        ctx.fillText("Slow Ball:"+powerupTimers.slowBall/1000,10,400);
+        titles.push("Slow Ball:"+Math.floor(powerupAmmo.slowBall*5/1000,0));
     }
     if(powerupAmmo.smallPaddle>0){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
-        ctx.fillText("Small Paddle:"+Math.floor(powerupAmmo.smallPaddle*5/1000,0),10,300);
+        titles.push("Small Paddle:"+Math.floor(powerupAmmo.smallPaddle*5/1000,0));
     }
     if(balls.length>1){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
-        ctx.fillText("Multiball",10,500);
+        titles.push("Multiball");
     }
     if(ammo>0){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
-        ctx.fillText("Laser Ammo: "+ammo,10,600);
+        titles.push("Laser Ammo: "+ammo);
     }
     if(throwBall>0){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
-        ctx.fillText("Catches "+throwBall,10,650);
+        titles.push("Catches "+throwBall);
     }
+    // console.log(titles);
+    for (var i = titles.length - 1; i >= 0; i--) {
+        ctx.fillText(titles[i],10,120+i*30);
+        titles.pop();
+    };
 }
 function drawLaser(){
     for (var i=nrows-1; i>=0; i--) {
@@ -235,7 +262,7 @@ function interact(){
         if(useLaser){
             
             if(ammo>0){
-                console.log("You fired your laser.");
+                // console.log("You fired your laser.");
                 laserTimer=50;
                 setInterval(function(){laserTimer-=5},5);
                 ammo--;
@@ -265,15 +292,15 @@ function interact(){
             balls[i].dy=balls[i].ndy;
         }   
             caughtBall=false;
-            console.log(caughtBall);
+            // console.log(caughtBall);
         //  caughtBall=true;
-            console.log("You threw the ball!");
-            console.log(throwBall);
+            // console.log("You threw the ball!");
+            // console.log(throwBall);
             balls[i].frozen=false;
     }
 }
     else{
-        console.log("No ammo and no throwBall");
+        // console.log("No ammo and no throwBall");
     }
 
 }
@@ -356,32 +383,32 @@ function resetPowerups(powerUp){
         // },18000);
         //     powerupIntvs.smallPaddle=setInterval(function(){powerupTimers.smallPaddle-=1000;},1000);
         //     break;
-        case "slowBall":
-            // console.log("Slow Ball");
-            // slowHit=true;
-            powerupTimers.slowBall+=18000;
-            powerupIntvs.slowBall=setInterval(function(){powerupTimers.slowBall-=1000;},1000);
-            setTimeout(
-                function(){
-                     for (var i = 0; i < balls.length; i++) {
-                        // balls[i].dx=balls[i].olddx;
-                        if(balls[i].dx<0){
-                            balls[i].dx=-balls[i].olddx;
-                        }
-                        else{
-                            balls[i].dx=balls[i].olddx;
-                        }
-                        if(balls[i].dy<0){
-                            balls[i].dy=-balls[i].olddy;
-                        }
-                        else{
-                            balls[i].dy=balls[i].olddy;
-                        }
-                        // console.log(balls[i].dx);
-                     };
-                     // slowHit=false;
-                },18000);
-            break;
+        // case "slowBall":
+        //     // console.log("Slow Ball");
+        //     // slowHit=true;
+        //     powerupTimers.slowBall+=18000;
+        //     powerupIntvs.slowBall=setInterval(function(){powerupTimers.slowBall-=1000;},1000);
+        //     setTimeout(
+        //         function(){
+        //              for (var i = 0; i < balls.length; i++) {
+        //                 // balls[i].dx=balls[i].olddx;
+        //                 if(balls[i].dx<0){
+        //                     balls[i].dx=-balls[i].olddx;
+        //                 }
+        //                 else{
+        //                     balls[i].dx=balls[i].olddx;
+        //                 }
+        //                 if(balls[i].dy<0){
+        //                     balls[i].dy=-balls[i].olddy;
+        //                 }
+        //                 else{
+        //                     balls[i].dy=balls[i].olddy;
+        //                 }
+        //                 // console.log(balls[i].dx);
+        //              };
+        //              // slowHit=false;
+        //         },18000);
+        //     break;
         case "multiBall":
             // console.log("Multiball On");
             break;
@@ -501,6 +528,58 @@ function draw(){
     }
     else if(powerupAmmo.bigPaddle<=0&&powerupAmmo.smallPaddle<=0){
         paddlew=200;
+    }
+
+    if(powerupAmmo.slowBall>0){
+        powerupAmmo.slowBall--;
+    }
+    else if(!slowOn&&powerupAmmo.slowBall===0){
+        for (var i = 0; i < balls.length; i++) {
+            console.log("after: "+balls[i].dx);
+            // balls[i].dx=balls[i].olddx;
+            console.log("slow on is false and slow ammo is 0");
+            if(balls[i].dx<0&&balls[i].olddx<0){
+                balls[i].dx=balls[i].olddx;
+                //works for real
+                // console.log("old dy: "+ olddy +" old dx: "+ olddx);
+            }
+            if(balls[i].dx>0&&balls[i].olddx>0){
+                balls[i].dx=balls[i].olddx;
+                console.log("new dx : "+ balls[i].dx +" old dx: "+ balls[i].olddx);
+                //works for real
+            }
+            if(balls[i].dx>0&&balls[i].olddx<0){
+                //works for real
+                console.log("new dx : "+ balls[i].dx +" old dx: "+ balls[i].olddx);
+                 balls[i].dx=-balls[i].olddx;
+            }
+            if(balls[i].dx<0&&balls[i].olddx>0){
+                console.log("new dx : "+ balls[i].dx +" old dx: "+ balls[i].olddx);
+                balls[i].dx=-balls[i].olddx;
+                //WORKS FOR REAL
+            }
+            if(balls[i].dy<0&&balls[i].olddy<0){
+                console.log("new dy : "+ balls[i].dy +" old dy: "+ balls[i].olddy);
+                balls[i].dy=balls[i].olddy;
+                //works for real
+            }
+            if(balls[i].dy>0&&balls[i].olddy>0){
+                console.log("new dy : "+ balls[i].dy +" old dy: "+ balls[i].olddy);
+                balls[i].dy=balls[i].olddy;
+            }
+            if(balls[i].dy<0&&balls[i].olddy>0){
+                console.log("new dy : "+ balls[i].dy +" old dy: "+ balls[i].olddy);
+                balls[i].dy=-balls[i].olddy;
+                //works for real
+            }
+            if(balls[i].dy>0&&balls[i].olddy<0){
+                console.log("new dy : "+ balls[i].dy +" old dy: "+ balls[i].olddy);
+                balls[i].dy=-balls[i].olddy;
+            }
+
+    // console.log(balls[i].dx);
+        };
+        slowOn=true;
     }
     // if(powerupAmmo.slowBall>0){
     //     for (var i = 0; i < balls.length; i++) {

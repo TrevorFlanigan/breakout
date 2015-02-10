@@ -16,11 +16,16 @@
 -Draw Paddle:D
 -Powerups
 	-Big Paddle:D
-	(Add timer for Powerups.):-)
-	-Power Clock countdown
-	-Little Paddle:-)
-	-Slow Ball:-)
+	(Add timer for Powerups.):D
+	-Power Clock countdown:D
+	-Little Paddle:D
+	-Slow Ball
+		-Reversing dx's and dy's
+		-math.floor the timer:D
+		-slow the ball only once, not many times.
+
 	-Many Balls
+		-brick and balls spawned from brick
 	-Laser:D
 		-Keyboard/Mouse Input to Shoot laser:D
 		-Give powerup when ball hits a certain brick:D
@@ -32,31 +37,34 @@
 		-program ball moving with paddle:D
 		-catch ball :D
 		-if the paddle is big, then gets small, fix the ball to the proper place on the paddle :D
+		-Display ammo
 -Draw Bricks:D
 -Ball vs Bottom of Screen:D
 -Ball vs Roof and Walls:D
--Icons for all powerups:-)
+-Icons for all powerups:D
 -Image Pre-loader :D 
-balls[i][0] is x
+
+
+balls[i].x is x
 
 
 
 have an array* of intervals which keep track of different powerup timers, have a function that starts up each different interval, and if(one of the timers>0){
-	draw the icon and time left on the game screen
+	draw the icon and time left on the game screen :D
 }
 
 
 write a new function that gets triggered inside the draw function
-make it check each of the powerup timer values in the powerupTimer Object, display any timers that are greater than zero
-
-
-When you hit a powerup: 
-	effect is put on
-	resetPowerups("powerup") is called
+make it check each of the powerup timer values in the powerupTimer Object, display any timers that are greater than zero :D
 
 
 
 
-fix a single powerup, see all steps that need to happen so that the powerup works properly so that it can be recreated and put all finished powerups into 1 function/area if possible, group intervals in 1 area, and timeouts in another
+Display the Ammo for C/T (Easy):D
 
-use powerupIntvs object and include all intervals in it.
+Slow the Ball only once(easy):D
+
+Reversing Dx's and Y's (Harder)
+	Display olddy and olddx in console.log to help test
+	use one ball to test
+	
