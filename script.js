@@ -52,6 +52,7 @@ var moveLeft=false;
 var moveRight=true;
 var nx;
 var ny;
+var bigPowOn=0;
 var stopTimer;
 var distanceBetween=0;
 var balls = [
@@ -215,7 +216,7 @@ function drawTimer(){
     if(balls.length>1){
         ctx.font="20px Georgia";    
         ctx.fillStyle="#ffffff"
-        titles.push("Multiball");
+        titles.push("Multiballs: "+ balls.length);
     }
     if(ammo>0){
         ctx.font="20px Georgia";    
@@ -430,7 +431,7 @@ function resetPowerups(powerUp){
     }
 }
 function randBrick(){
-  var numbers=[0,1,1,1,1,1,1,1,1,1,1,1,2,3,4,5,6,7];
+  var numbers=[1,1,1,1,1,1,1,1,1,1,1,2,3,4,5,6,7];
   var idx = Math.floor(Math.random() * numbers.length);
   return numbers[idx];
 }
@@ -529,6 +530,7 @@ function draw(){
         powerupAmmo.bigPaddle-=1;
         paddlew=400;
         powerupAmmo.smallPaddle=0;
+        bigPowOn=0;
     }
     // else if(powerupAmmo.smallPaddle<=0){
     //     paddlew=200;
@@ -537,9 +539,20 @@ function draw(){
         powerupAmmo.smallPaddle-=1;
         paddlew=150;
         powerupAmmo.bigPaddle=0;
+        bigPowOn=0;
     }
     else if(powerupAmmo.bigPaddle<=0&&powerupAmmo.smallPaddle<=0){
         paddlew=200;
+        if(bigPowOn==0){
+            for (var i = 0; i < balls.length; i++){
+               balls[i].distanceBetween=balls[i].distanceBetween/2;
+           }
+        }
+        
+            // balls[i].distanceBetween=balls[i].distanceBetween/2;
+        bigPowOn++;
+            
+    // }
     }
 
     if(powerupAmmo.slowBall>0){
@@ -628,8 +641,9 @@ function draw(){
     for (var i = 0; i < balls.length; i++) {
     
         if(balls[i].frozen){
-            //console.log(balls[i].distanceBetween);
+            
             balls[i].x=paddlex+balls[i].distanceBetween;
+            // console.log(balls[i].x);
             balls[i].dx=0;
             balls[i].dy=0;
         }
@@ -716,7 +730,7 @@ function draw(){
     //  bricks[row][col]=0;
     //  dy=-dy;
         
-    // }
+    
 
 //console.log(row+" "+col);
     for (var i = 0; i < balls.length; i++) {
@@ -751,7 +765,7 @@ function draw(){
                     if(throwBall){
                         caughtBall=true;
                         balls[i].distanceBetween=balls[i].x-paddlex;
-                        // console.log(balls[i].distanceBetween);
+                        console.log(balls[i].distanceBetween);
                         balls[i].frozen=true;
                         balls[i].ndx=balls[i].dx;
                         balls[i].ndy=balls[i].dy;
@@ -837,21 +851,21 @@ function draw(){
     
     
     for (var i = 0; i < balls.length; i++) {
-    
-    if(caughtBall&&mousePos<nx){
-        balls[i].dx=paddlex-balls[i].distanceBetween;
-        // console.log("Ball Moving Left");
-    }
-    else if(caughtBall&&mousePos>nx){
-        balls[i].dx=paddlex-balls[i].distanceBetween;
-        // console.log("Ball moving right");
-    }
-    if(caughtBall&&bigOff){
-        // console.log(bigOff);
-        balls[i].distanceBetween=balls[i].distanceBetween/2;
-        bigOff=false;
-    }
-};
+        
+        if(caughtBall&&mousePos<nx){
+            balls[i].dx=paddlex-balls[i].distanceBetween;
+            // console.log("Ball Moving Left");
+        }
+        else if(caughtBall&&mousePos>nx){
+            balls[i].dx=paddlex-balls[i].distanceBetween;
+            // console.log("Ball moving right");
+        }
+        if(caughtBall&&bigOff){
+            // console.log(bigOff);
+            balls[i].distanceBetween=balls[i].distanceBetween/2;
+            bigOff=false;
+        }
+    };
     if(checkWin()){ 
         // console.log("You Won!");
         ctx.font= width/6+"px Ariel";
@@ -923,6 +937,8 @@ function draw(){
     }
 
 }
+//end of draw function 
+
 // initPaddle();
 // initBricks();
 // var interval = setInterval(draw,5);
