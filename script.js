@@ -14,6 +14,8 @@ canvas.width=width;
 canvas.height=height;
 var x=width/2;
 var y=height/2;
+// console.log(height);
+// console.log(width);
 var dx=2;
 var dy=3;
 var paddlex;
@@ -24,11 +26,19 @@ var rightDown=false;
 var leftDown=false;
 var ps=5;
 var mousePos;
+var mousePosY;
 var bricks;
 var nrows=5;
 var ncols=5;
 var brickWidth=width/ncols-1;
+var dHeight=height/20;
+// console.log(dHeight);
 var brickHeight=15;
+// console.log(brickHeight);
+// var brickY=(row+1)*(brickHeight+1);
+if(height>=301){
+   brickHeight=dHeight;
+}
 var padding=1;
 var win=false;
 var brickColour;
@@ -88,6 +98,11 @@ var bigHit=false;
 var firstSlow=false;
 
 var titles=[];
+var textHeight;
+var textWidth;
+var textTallness;
+var textWideness;
+var yes;
 // var powerupTitles=
 // {bigPaddle:0,
 // slowBall:0,
@@ -103,7 +118,14 @@ ctx.arc(width/2,height/2,10,0,2*Math.PI);
 ctx.fill();*/
 
 //Javascript
+function refresh(){
+    if(mousePos>width/2-textWideness/2&&mousePos<width/2-textWideness/2+textWideness&&mousePosY>height/2+textTallness/2&&mousePosY<height/2+textTallness/2+textTallness/2){
+        document.body.style.cursor="pointer";
+        document.location.reload();
+        // document.onClick(document.location.reload());
+    }
 
+}
 
 // function startTimer(time){
 //     timer=time;
@@ -118,8 +140,30 @@ ctx.fill();*/
 //         },1000
 //     );
 // }
+function drawRefresh(){
+    ctx.font="small-caps bold "+width/10+"px Ariel";
+    yes="Yes";
+    var textWideness=ctx.measureText(yes).width;
+    var textTallness = width/10 * 1.5;
+    ctx.fillText("Yes",width/2-textWideness/2,height/2+textTallness);
+    // textTallness=ctx.measureText(yes).height;
+    // console.log(textTallness);
+    // console.log(textWideness);
+    ctx.strokeStyle="White";
+    ctx.strokeRect(width/2-textWideness/2,height/2+textTallness/2,textWideness,textTallness/2);
+    if(mousePos>width/2-textWideness/2&&mousePos<width/2-textWideness/2+textWideness&&mousePosY>height/2+textTallness/2&&mousePosY<height/2+textTallness/2+textTallness/2){
+        document.body.style.cursor="pointer";
+        // document.onClick(document.location.reload());
+    }
+    else{
+        document.body.style.cursor="default";
+    }
 
+}
 
+function paintBrick(){
+
+}
 function givePowerup(row,col){
     
         //console.log(row+" "+col);
@@ -180,7 +224,14 @@ function givePowerup(row,col){
             resetPowerups("multiBall");
               console.log("New Ball Created");
               var brickX=col*(brickWidth+1)+(brickWidth/2);
+              var brickY;
               var brickY=(row+1)*(brickHeight+1);
+              if(height>=301){
+                brickY=(row+1)*(dHeight+1);
+              }
+              else{
+                brickY=(row+1)*(brickHeight+1);
+              }
               console.log(brickX);
               var summonBalls=Math.floor((Math.random() * 3) + 1);
               balls.push({x:brickX,y:brickY,dx:Math.floor((Math.random()*2)+1),dy:Math.floor((Math.random()*-2)-1),ndx:0,ndy:0,distanceBetween:distanceBetween,frozen:false,olddy:0,olddx:0});
@@ -322,7 +373,15 @@ function brickIcon(icon,i,j){
     ctx.drawImage(icon, j*(brickWidth+padding*2)+brickWidth/2, i*(brickHeight+padding*2));
 }
 function fillBrick(i,j){
+    ctx.shadowColor="white";
+    ctx.shadowBlur=60;
+    ctx.shadowOffsetX=-20;
+    ctx.shadowOffsetY=20;
     ctx.fillRect(j*(brickWidth+padding*2), i*(brickHeight+padding*2),brickWidth, brickHeight);
+    ctx.shadowColor="black";
+    ctx.shadowBlur=0;
+    ctx.shadowOffsetX=0;
+    ctx.shadowOffsetY=0;
 }
 function loadImages(sources, callback) {
     var loadedImages = 0;
@@ -473,6 +532,7 @@ function checkWin(){
 }
 function onMouseMove(evt){
     mousePos=evt.pageX;
+    mousePosY=evt.pageY;
     
 }
 function onKeyDown(evt){
@@ -500,7 +560,7 @@ function onKeyUp(evt){
 }
 function initPaddle(){
     paddlex=width/2;
-    paddleh=10;
+    paddleh=height/50;
     paddlew=200;
 }
 function initBricks(){
@@ -516,7 +576,22 @@ function initBricks(){
     for(i=0;i<nrows;i++){
         brickColour[i]=new Array(ncols);
         for(j=0;j<ncols;j++){
-            brickColour[i][j]=rainbowPower();
+            if(i==0){
+             brickColour[i][j]="#006400";
+            }
+            else if(i==1){
+                brickColour[i][j]="#228B22";
+            }
+            else if(i==2){
+                brickColour[i][j]="#00FF7F";
+            }
+            else if(i==3){
+                brickColour[i][j]="#00FA9A";
+            }
+            else if(i==4){
+                brickColour[i][j]="#98FB98";
+            }
+
         }
     }
     //console.log(bricks);
@@ -621,7 +696,7 @@ function draw(){
     //     bigOff=true;
     // }
     // console.log(powerupTimers.bigPaddle);
-    // console.log(mouseX);
+     // console.log(mouseX);
     //console.log("Ping");
     ctx.fillStyle=bgColour;
     // drawTimer();
@@ -657,34 +732,34 @@ function draw(){
 
             }
             else if(bricks[i][j]===2){
-                ctx.fillStyle=rainbowPower();
+                ctx.fillStyle=brickColour[i][j];
                 fillBrick(i,j);
                 brickIcon(images.big,i,j);
             }
             else if(bricks[i][j]===3){
-                ctx.fillStyle="red";
+                ctx.fillStyle=brickColour[i][j];
                 fillBrick(i,j);
                 brickIcon(images.small,i,j);
             }
             else if(bricks[i][j]===4){
-                ctx.fillStyle="white";
+                ctx.fillStyle=brickColour[i][j];
                 fillBrick(i,j);
                 brickIcon(images.slow,i,j);
 
 
             }
             else if(bricks[i][j]===5){
-                ctx.fillStyle="purple";
+                ctx.fillStyle=brickColour[i][j];
                 fillBrick(i,j);
                 brickIcon(images.laser,i,j);
             }
             else if(bricks[i][j]===6){
-                ctx.fillStyle="yellow";
+                ctx.fillStyle=brickColour[i][j];
                 fillBrick(i,j);
                 brickIcon(images.throwBall,i,j);
             }
             else if(bricks[i][j]===7){
-                ctx.fillStyle="pink";
+                ctx.fillStyle=brickColour[i][j];
                 fillBrick(i,j);
                 brickIcon(images.multiBall,i,j);
             }
@@ -808,14 +883,21 @@ function draw(){
             }
 
             else{
-                if(balls.length===1){
+                if(balls.length<=1){
+                    
                     // console.log("Game is over.");
-                    ctx.font= width/6+"px Ariel";
-                    var textString="You Lose!";
-                    var textWidth=ctx.measureText(textString).width;
-                    bgColour="#6E463F";
+                    // ctx.font= width/6+"px Ariel";
+                    var textString="You Lose! Play Again?";
+                    // playAgain("lose");
+                    drawRefresh();
+                    textWidth=ctx.measureText(textString).width;
+                    textHeight=ctx.measureText(textString).height;
+                    bgColour="brown";
+                    ctx.font= width/10+"px Georgia";
                     ctx.fillStyle="white";
                     ctx.fillText(textString,width/2-textWidth/2,height/2);
+                    balls.splice(i,1);
+                    console.log(balls.length);
                 }
                 else{
                     balls.splice(i,1);
@@ -870,6 +952,7 @@ function draw(){
         // console.log("You Won!");
         ctx.font= width/6+"px Ariel";
         var textString="You Win!";
+        drawRefresh();
         var textWidth=ctx.measureText(textString).width;
         ctx.fillStyle="white";
         ctx.fillText(textString,width/2-textWidth/2,height/2);
@@ -921,7 +1004,8 @@ function draw(){
         rightDown=false;
     }
 
-    //console.log(mousePos);
+    // console.log(mousePos);
+    // console.log(mousePosY);
     if(leftDown===true&&rightDown===false&&paddlex-paddlew/2>=0){
     //  console.log("Moving Left!");
         paddlex-=paddledx;
